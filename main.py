@@ -258,42 +258,145 @@ class TrackerWindow(ctk.CTk):
         self.starting_player_label = ctk.CTkLabel(self, text='Ki lesz a kezdojatekos?', font=('Arial',26))
         self.starting_player_label.pack(pady=20)
 
-        self.starting_player_button1 = ctk.CTkButton(self, text=player1, font=('Arial',16), height=70, command=lambda: self.update_starting_player('1v1', player1))
+        self.starting_player_button1 = ctk.CTkButton(self, text=player1, font=('Arial',16), height=70, command=lambda: self.update_starting_player('1v1', player1, player2))
         self.starting_player_button1.place(rely=0.4, relx=0.2)
 
-        self.starting_player_button2 = ctk.CTkButton(self, text=player2, font=('Arial',16), height=70, command=lambda: self.update_starting_player('1v1', player2))
+        self.starting_player_button2 = ctk.CTkButton(self, text=player2, font=('Arial',16), height=70, command=lambda: self.update_starting_player('1v1', player2, player1))
         self.starting_player_button2.place(rely=0.4, relx=0.5)
 
 
     # 1v1 Jatekablak
-    def one_v_one_tracker_window(self, starting_player):
+    def one_v_one_tracker_window(self, starting_player, other_player):
 
         # Widgetek eltuntetese as ablak meretenek atallitasa
-        self.geometry('600x600')
+        self.geometry('690x420')
         self.starting_player_label.pack_forget()
         self.starting_player_button1.place_forget()
         self.starting_player_button2.place_forget()
+
+        # Valtozok a jatekhoz
+        player1 = starting_player
+        player2 = other_player
+        player1_cups_left = 10
+        player2_cups_left = 10
+        player1_total_throws = 0
+        player2_total_throws = 0
+        player1_total_hits = 0
+        player2_total_hits = 0
+        player1_total_miss = 0
+        player2_total_miss = 0
 
         # Keret a címkék számára a tetején
         top_frame = ctk.CTkFrame(self)
         top_frame.pack(pady=10, fill="x")
 
         # Első címke az új keretben, középre igazítva
-        label1 = ctk.CTkLabel(top_frame, text="Soron levo jatekos:", font=("Arial", 20))
-        label1.pack(side='left', padx=(180,0))
+        current_player_label = ctk.CTkLabel(top_frame, text="Soron levo jatekos:", font=("Arial", 24))
+        current_player_label.pack(side='left', padx=(180,0))
 
         # Második címke az új keretben, középre igazítva
-        label2 = ctk.CTkLabel(top_frame, text=starting_player, font=("Arial", 20))
-        label2.pack(side='left', padx=25)
+        player2_name_label = ctk.CTkLabel(top_frame, text=player1, font=("Arial", 24))
+        player2_name_label.pack(side='left', padx=25)
 
-        # Első keret (Frame) létrehozása és csomagolása balra
-        frame1 = ctk.CTkFrame(self, width=240, height=100)
-        frame1.pack(side="left", padx=10, pady=10, fill="both", expand=True)
+        # Player1 keret
+        player1_frame = ctk.CTkFrame(self, width=240, height=100)
+        player1_frame.pack(side="left", padx=10, pady=10, fill="both", expand=True)
 
-        # Második keret (Frame) létrehozása és csomagolása jobbra
-        frame2 = ctk.CTkFrame(self, width=240, height=100)
-        frame2.pack(side="right", padx=10, pady=10, fill="both", expand=True)
+        # Player2 keret
+        player2_frame = ctk.CTkFrame(self, width=240, height=100)
+        player2_frame.pack(side="right", padx=10, pady=10, fill="both", expand=True)
 
+        # Player1 nev es fentlevo poharak
+        player1_name_label = ctk.CTkLabel(player1_frame, text=player1, font=("Arial", 26))
+        player1_name_label.pack(pady=(20, 5))
+        player1_score_label = ctk.CTkLabel(player1_frame, text=str(player1_cups_left), font=("Arial", 24))
+        player1_score_label.pack(pady=5)
+
+        # Player1 gombok
+        player1_button_frame = ctk.CTkFrame(player1_frame)
+        player1_button_frame.pack(pady=10)
+        payer1_hit_button = ctk.CTkButton(player1_button_frame, text="Hit", command=lambda: print('Hit'), fg_color="green", height=60, font=("Arial", 25))
+        payer1_hit_button.pack(side='left', padx=10)
+        player1_miss_button = ctk.CTkButton(player1_button_frame, text="Miss", command=lambda: print('Miss'), fg_color="red", height=60, font=("Arial", 25))
+        player1_miss_button.pack(side='left', padx=10)
+
+        # Player1 Total throw statisztika 
+        player1_total_throws_stat_frame = ctk.CTkFrame(player1_frame)
+        player1_total_throws_stat_frame.pack(pady=(20,0), fill="x")
+        player1_total_throws_stat_label = ctk.CTkLabel(player1_total_throws_stat_frame, text="Total throws:", font=("Arial", 20))
+        player1_total_throws_stat_label.pack(side='left', padx=10)
+        player1_total_throws_var_label = ctk.CTkLabel(player1_total_throws_stat_frame, text=player1_total_throws, font=("Arial", 20))
+        player1_total_throws_var_label.pack(side='left', padx=10)
+
+        # Player1 Total hits statisztika 
+        player1_total_hits_stat_frame = ctk.CTkFrame(player1_frame)
+        player1_total_hits_stat_frame.pack(pady=0, fill="x")
+        player1_total_hits_stat_label = ctk.CTkLabel(player1_total_hits_stat_frame, text="Total hits:", font=("Arial", 20))
+        player1_total_hits_stat_label.pack(side='left', padx=10)
+        player1_total_hits_var_label = ctk.CTkLabel(player1_total_hits_stat_frame, text=player1_total_hits, font=("Arial", 20))
+        player1_total_hits_var_label.pack(side='left', padx=10)
+
+        # Player1 Total miss statisztika 
+        player1_total_miss_stat_frame = ctk.CTkFrame(player1_frame)
+        player1_total_miss_stat_frame.pack(pady=0, fill="x")
+        player1_total_miss_stat_label = ctk.CTkLabel(player1_total_miss_stat_frame, text="Total misses:", font=("Arial", 20))
+        player1_total_miss_stat_label.pack(side='left', padx=10)
+        player1_total_miss_var_label = ctk.CTkLabel(player1_total_miss_stat_frame, text=player1_total_miss, font=("Arial", 20))
+        player1_total_miss_var_label.pack(side='left', padx=10)
+
+        # Player1 Total percentage statisztika 
+        player1_total_percentage_stat_frame = ctk.CTkFrame(player1_frame)
+        player1_total_percentage_stat_frame.pack(pady=0, fill="x")
+        player1_total_percentage_stat_label = ctk.CTkLabel(player1_total_percentage_stat_frame, text="Total percentage:", font=("Arial", 20))
+        player1_total_percentage_stat_label.pack(side='left', padx=10)
+        player1_total_percentage_var_label = ctk.CTkLabel(player1_total_percentage_stat_frame, text=f'{self.calculate_percentage(player1_total_hits, player1_total_throws)}%', font=("Arial", 20))
+        player1_total_percentage_var_label.pack(side='left', padx=10)
+
+        # Player2 nev es fentlevo poharak
+        player2_name_label = ctk.CTkLabel(player2_frame, text=player2, font=("Arial", 26))
+        player2_name_label.pack(pady=(20, 5))
+        player2_score_label = ctk.CTkLabel(player2_frame, text=str(player2_cups_left), font=("Arial", 24))
+        player2_score_label.pack(pady=5)
+
+        # Player2 gombok
+        player2_button_frame = ctk.CTkFrame(player2_frame)
+        player2_button_frame.pack(pady=10)
+        player2_hit_button = ctk.CTkButton(player2_button_frame, text="Hit", command=lambda: print('Hit'), fg_color="green", height=60, font=("Arial", 25))
+        player2_hit_button.pack(side='left', pady=2, padx=10)
+        player2_miss_button = ctk.CTkButton(player2_button_frame, text="Miss", command=lambda: print('Miss'), fg_color="red", height=60, font=("Arial", 25))
+        player2_miss_button.pack(side='left', pady=2, padx=10)
+        
+        # Player2 Total throw statisztika 
+        player2_total_throws_stat_frame = ctk.CTkFrame(player2_frame)
+        player2_total_throws_stat_frame.pack(pady=(20,0), fill="x")
+        player2_total_throws_stat_label = ctk.CTkLabel(player2_total_throws_stat_frame, text="Total throws:", font=("Arial", 20))
+        player2_total_throws_stat_label.pack(side='left', padx=10)
+        player2_total_throws_var_label = ctk.CTkLabel(player2_total_throws_stat_frame, text=player2_total_throws, font=("Arial", 20))
+        player2_total_throws_var_label.pack(side='left', padx=10)
+
+        # Player2 Total hits statisztika 
+        player2_total_hits_stat_frame = ctk.CTkFrame(player2_frame)
+        player2_total_hits_stat_frame.pack(pady=0, fill="x")
+        player2_total_hits_stat_label = ctk.CTkLabel(player2_total_hits_stat_frame, text="Total hits:", font=("Arial", 20))
+        player2_total_hits_stat_label.pack(side='left', padx=10)
+        player2_total_hits_var_label = ctk.CTkLabel(player2_total_hits_stat_frame, text=player2_total_hits, font=("Arial", 20))
+        player2_total_hits_var_label.pack(side='left', padx=10)
+
+        # Player2 Total miss statisztika 
+        player2_total_miss_stat_frame = ctk.CTkFrame(player2_frame)
+        player2_total_miss_stat_frame.pack(pady=0, fill="x")
+        player2_total_miss_stat_label = ctk.CTkLabel(player2_total_miss_stat_frame, text="Total misses:", font=("Arial", 20))
+        player2_total_miss_stat_label.pack(side='left', padx=10)
+        player2_total_miss_var_label = ctk.CTkLabel(player2_total_miss_stat_frame, text=player2_total_miss, font=("Arial", 20))
+        player2_total_miss_var_label.pack(side='left', padx=10)
+
+        # Player2 Total percentage statisztika 
+        player2_total_percentage_stat_frame = ctk.CTkFrame(player2_frame)
+        player2_total_percentage_stat_frame.pack(pady=0, fill="x")
+        player2_total_percentage_stat_label = ctk.CTkLabel(player2_total_percentage_stat_frame, text="Total percentage:", font=("Arial", 20))
+        player2_total_percentage_stat_label.pack(side='left', padx=10)
+        player2_total_percentage_var_label = ctk.CTkLabel(player2_total_percentage_stat_frame, text=f'{self.calculate_percentage(player2_total_hits, player2_total_throws)}%', font=("Arial", 20))
+        player2_total_percentage_var_label.pack(side='left', padx=10)
 
     # 2v2 Jatekablak
     def two_v_two_tracker_window(self):
@@ -301,13 +404,21 @@ class TrackerWindow(ctk.CTk):
 
     
     # Kezdojatekos valtozoba helyezese
-    def update_starting_player(self, mode, startingplayer):
+    def update_starting_player(self, mode, startingplayer, other_player):
         match mode:
             case '1v1':
-                self.one_v_one_tracker_window(startingplayer)
+                self.one_v_one_tracker_window(startingplayer, other_player)
             case '2v2':
                 print('In work')
                 # TODO
+
+    # Szazalek szamitas
+    def calculate_percentage(self, numerator, denominator):
+        if denominator == 0:  # Nullával való osztás elkerülése
+            return 100
+        else:
+            result = (numerator / denominator) * 100
+            return round(result) # Kerekites
 
 
     # Jatekosok betoltese a comboboxokba
