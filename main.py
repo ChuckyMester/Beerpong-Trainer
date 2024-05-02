@@ -285,11 +285,14 @@ class TrackerWindow(ctk.CTk):
         self.one_v_one_player2_total_hits = 0
         self.one_v_one_player1_total_miss = 0
         self.one_v_one_player2_total_miss = 0
-        self.one_v_one_starter_throw_happened = False # 1-rol inditjuk a korok szamat
+        self.one_v_one_starter_throw_happened = False # Kezdokor valtozo
         self.one_v_one_player1_doubles = 0
         self.one_v_one_player2_doubles = 0
-        self.one_v_one_first_throw = False   # Valtozo a duplazas nyomonkovetesehez   (Truera valtozik, ha HIT)
-        self.one_v_one_second_throw = False  # Valtozo a duplazas nyomonkovetesehez   (Truera valtozik, ha HIT)
+        self.one_v_one_player1_throws_without_miss = 0 # Duplazashoz valtozo
+        self.one_v_one_player2_throws_without_miss = 0 # Duplazashoz valtozo
+        self.one_v_one_third_shot = False   # 3. dobas valtozo
+        self.one_v_one_overtime_var = False
+
 
         # Keret a címke számára a tetején
         self.one_v_one_top_frame = ctk.CTkFrame(self)
@@ -419,18 +422,32 @@ class TrackerWindow(ctk.CTk):
                 self.one_v_one_player1_total_percentage_var_label.configure(text=f'{self.calculate_percentage(self.one_v_one_player1_total_hits, self.one_v_one_player1_total_throws)}%')
                 self.one_v_one_player2_score_label.configure(text=self.one_v_one_player2_cups_left)
 
+                # Ha nem a 3. dobas
+                if self.one_v_one_third_shot == False:
+                    # Egyhuzamban torteno hitek noveles
+                    self.one_v_one_player1_throws_without_miss += 1
+
+                    if self.one_v_one_player1_throws_without_miss == 2:
+                        self.one_v_one_player1_doubles += 1
+                        self.one_v_one_third_shot = True
+                        self.one_v_one_check_endgame()
+                        return
+                else:
+                    self.one_v_one_third_shot = False
+                    self.one_v_one_player1_throws_without_miss = 0
+
                 # Aktiv jatekos cserejenek ellenorzese(Elso korben egybol cserelunk, mert a kezdes 1 labdaval tortenik)
                 if self.one_v_one_starter_throw_happened == False:
                     self.one_v_one_deactivate_button(self.one_v_one_player1)
+                    self.one_v_one_player1_throws_without_miss = 0
                     self.one_v_one_starter_throw_happened = True
 
-                elif self.one_v_one_first_throw == False or self.one_v_one_second_throw == False: # Dupla mar nem lehet
-                    if self.one_v_one_player1_doubles % 2 == 0:
-                        if self.one_v_one_player1_total_throws % 2 == 1:
-                            self.one_v_one_deactivate_button(self.one_v_one_player1)
-                    else:
-                        if self.one_v_one_player1_total_throws % 2 == 0:
-                            self.one_v_one_deactivate_button(self.one_v_one_player1)
+                if self.one_v_one_player1_doubles % 2 == 0:
+                    if self.one_v_one_player1_total_throws % 2 == 1:
+                        self.one_v_one_deactivate_button(self.one_v_one_player1)
+                else:
+                    if self.one_v_one_player1_total_throws % 2 == 0:
+                        self.one_v_one_deactivate_button(self.one_v_one_player1)
 
 
             # Ha player 2 hit
@@ -445,14 +462,27 @@ class TrackerWindow(ctk.CTk):
                 self.one_v_one_player2_total_percentage_var_label.configure(text=f'{self.calculate_percentage(self.one_v_one_player2_total_hits, self.one_v_one_player2_total_throws)}%')
                 self.one_v_one_player1_score_label.configure(text=self.one_v_one_player1_cups_left)
 
+                # Ha nem a 3. dobas
+                if self.one_v_one_third_shot == False:
+                    # Egyhuzamban torteno hitek noveles
+                    self.one_v_one_player2_throws_without_miss += 1
+
+                    if self.one_v_one_player2_throws_without_miss == 2:
+                        self.one_v_one_player2_doubles += 1
+                        self.one_v_one_third_shot = True
+                        self.one_v_one_check_endgame()
+                        return
+                else:
+                    self.one_v_one_third_shot = False
+                    self.one_v_one_player2_throws_without_miss = 0
+
                 # Aktiv jatekos cserejenek ellenorzese(Elso korben egybol cserelunk, mert a kezdes 1 labdaval tortenik)        
-                if self.one_v_one_first_throw == False or self.one_v_one_second_throw == False: # Dupla mar nem lehet
-                    if self.one_v_one_player2_doubles % 2 == 0:
-                        if self.one_v_one_player2_total_throws % 2 == 0:
-                            self.one_v_one_deactivate_button(self.one_v_one_player2)
-                    else:
-                        if self.one_v_one_player2_total_throws % 2 == 1:
-                            self.one_v_one_deactivate_button(self.one_v_one_player2)
+                if self.one_v_one_player2_doubles % 2 == 0:
+                    if self.one_v_one_player2_total_throws % 2 == 0:
+                        self.one_v_one_deactivate_button(self.one_v_one_player2)
+                else:
+                    if self.one_v_one_player2_total_throws % 2 == 1:
+                        self.one_v_one_deactivate_button(self.one_v_one_player2)
 
         # Jatek vegenek ellenorzese
         self.one_v_one_check_endgame()
@@ -471,18 +501,22 @@ class TrackerWindow(ctk.CTk):
                 self.one_v_one_player1_total_miss_var_label.configure(text=self.one_v_one_player1_total_miss)
                 self.one_v_one_player1_total_percentage_var_label.configure(text=f'{self.calculate_percentage(self.one_v_one_player1_total_hits, self.one_v_one_player1_total_throws)}%')
 
+                # Egyhuzamban torteno hitek 0-zasa  es 3. dobas valtozojanak visszaallitasa
+                self.one_v_one_player1_throws_without_miss = 0
+                if self.one_v_one_third_shot == True:
+                    self.one_v_one_third_shot = False
+
                 # Aktiv jatekos cserejenek ellenorzese(Elso korben egybol cserelunk, mert a kezdes 1 labdaval tortenik)
                 if self.one_v_one_starter_throw_happened == False:
                     self.one_v_one_deactivate_button(self.one_v_one_player1)
                     self.one_v_one_starter_throw_happened = True
 
-                elif self.one_v_one_first_throw == False or self.one_v_one_second_throw == False: # Dupla mar nem lehet
-                    if self.one_v_one_player1_doubles % 2 == 0:
-                        if self.one_v_one_player1_total_throws % 2 == 1:
-                            self.one_v_one_deactivate_button(self.one_v_one_player1)
-                    else:
-                        if self.one_v_one_player1_total_throws % 2 == 0:
-                            self.one_v_one_deactivate_button(self.one_v_one_player1)
+                if self.one_v_one_player1_doubles % 2 == 0:
+                    if self.one_v_one_player1_total_throws % 2 == 1:
+                        self.one_v_one_deactivate_button(self.one_v_one_player1)
+                else:
+                    if self.one_v_one_player1_total_throws % 2 == 0:
+                        self.one_v_one_deactivate_button(self.one_v_one_player1)
 
             # Ha player 2 miss
             case self.one_v_one_player2:
@@ -494,14 +528,18 @@ class TrackerWindow(ctk.CTk):
                 self.one_v_one_player2_total_miss_var_label.configure(text=self.one_v_one_player2_total_miss)
                 self.one_v_one_player2_total_percentage_var_label.configure(text=f'{self.calculate_percentage(self.one_v_one_player2_total_hits, self.one_v_one_player2_total_throws)}%')
 
+                # Egyhuzamban torteno hitek 0-zasa es 3. dobas valtozojanak visszaallitasa
+                self.one_v_one_player2_throws_without_miss = 0
+                if self.one_v_one_third_shot == True:
+                    self.one_v_one_third_shot = False
+
                 # Aktiv jatekos cserejenek ellenorzese(Elso korben egybol cserelunk, mert a kezdes 1 labdaval tortenik)        
-                if self.one_v_one_first_throw == False or self.one_v_one_second_throw == False: # Dupla mar nem lehet
-                    if self.one_v_one_player2_doubles % 2 == 0:
-                        if self.one_v_one_player2_total_throws % 2 == 0:
-                            self.one_v_one_deactivate_button(self.one_v_one_player2)
-                    else:
-                        if self.one_v_one_player2_total_throws % 2 == 1:
-                            self.one_v_one_deactivate_button(self.one_v_one_player2)
+                if self.one_v_one_player2_doubles % 2 == 0:
+                    if self.one_v_one_player2_total_throws % 2 == 0:
+                        self.one_v_one_deactivate_button(self.one_v_one_player2)
+                else:
+                    if self.one_v_one_player2_total_throws % 2 == 1:
+                        self.one_v_one_deactivate_button(self.one_v_one_player2)
 
 
     # Jatek vegenek ellenorzese
