@@ -412,80 +412,119 @@ class TrackerWindow(ctk.CTk):
         match player:
             # Ha one_v_one_player1 hit
             case self.one_v_one_player1:
-                self.one_v_one_player1_total_throws += 1
-                self.one_v_one_player1_total_hits += 1
-                self.one_v_one_player2_cups_left -= 1
+                # Ha a hosszabbitas nem aktiv
+                if self.one_v_one_overtime_var == False:
+                    self.one_v_one_player1_total_throws += 1
+                    self.one_v_one_player1_total_hits += 1
+                    self.one_v_one_player2_cups_left -= 1
+                    
+                    # Labelek valtoztatasa
+                    self.one_v_one_player1_total_throws_var_label.configure(text=self.one_v_one_player1_total_throws)
+                    self.one_v_one_player1_total_hits_var_label.configure(text=self.one_v_one_player1_total_hits)
+                    self.one_v_one_player1_total_percentage_var_label.configure(text=f'{self.calculate_percentage(self.one_v_one_player1_total_hits, self.one_v_one_player1_total_throws)}%')
+                    self.one_v_one_player2_score_label.configure(text=self.one_v_one_player2_cups_left)
+
+                    # Ha nem a 3. dobas
+                    if self.one_v_one_third_shot == False:
+                        # Egyhuzamban torteno hitek noveles
+                        self.one_v_one_player1_throws_without_miss += 1
+
+                        if self.one_v_one_player1_throws_without_miss == 2:
+                            self.one_v_one_player1_doubles += 1
+                            self.one_v_one_third_shot = True
+                            self.one_v_one_check_endgame()
+                            return
+                    else:
+                        self.one_v_one_third_shot = False
+                        self.one_v_one_player1_throws_without_miss = 0
+
+                    # Aktiv jatekos cserejenek ellenorzese(Elso korben egybol cserelunk, mert a kezdes 1 labdaval tortenik)
+                    if self.one_v_one_starter_throw_happened == False:
+                        self.one_v_one_deactivate_button(self.one_v_one_player1)
+                        self.one_v_one_player1_throws_without_miss = 0 # Visszaallitjuk a valtozot nullara, hogy ne szamolja hibasan a duplazast
+                        self.one_v_one_starter_throw_happened = True
+
+                    if self.one_v_one_player1_doubles % 2 == 0:
+                        if self.one_v_one_player1_total_throws % 2 == 1:
+                            self.one_v_one_deactivate_button(self.one_v_one_player1)
+                    else:
+                        if self.one_v_one_player1_total_throws % 2 == 0:
+                            self.one_v_one_deactivate_button(self.one_v_one_player1)
+
+                    # Jatek vegenek ellenorzese
+                    self.one_v_one_check_endgame()
                 
-                # Labelek valtoztatasa
-                self.one_v_one_player1_total_throws_var_label.configure(text=self.one_v_one_player1_total_throws)
-                self.one_v_one_player1_total_hits_var_label.configure(text=self.one_v_one_player1_total_hits)
-                self.one_v_one_player1_total_percentage_var_label.configure(text=f'{self.calculate_percentage(self.one_v_one_player1_total_hits, self.one_v_one_player1_total_throws)}%')
-                self.one_v_one_player2_score_label.configure(text=self.one_v_one_player2_cups_left)
-
-                # Ha nem a 3. dobas
-                if self.one_v_one_third_shot == False:
-                    # Egyhuzamban torteno hitek noveles
-                    self.one_v_one_player1_throws_without_miss += 1
-
-                    if self.one_v_one_player1_throws_without_miss == 2:
-                        self.one_v_one_player1_doubles += 1
-                        self.one_v_one_third_shot = True
-                        self.one_v_one_check_endgame()
-                        return
+                # Addig kell dobni meg el nem eri a 0-at az ellenfel poharainak a szama
                 else:
-                    self.one_v_one_third_shot = False
-                    self.one_v_one_player1_throws_without_miss = 0
+                    self.one_v_one_player1_total_throws += 1
+                    self.one_v_one_player1_total_hits += 1
+                    self.one_v_one_player2_cups_left -= 1
 
-                # Aktiv jatekos cserejenek ellenorzese(Elso korben egybol cserelunk, mert a kezdes 1 labdaval tortenik)
-                if self.one_v_one_starter_throw_happened == False:
-                    self.one_v_one_deactivate_button(self.one_v_one_player1)
-                    self.one_v_one_player1_throws_without_miss = 0
-                    self.one_v_one_starter_throw_happened = True
+                    # Labelek valtoztatasa
+                    self.one_v_one_player1_total_throws_var_label.configure(text=self.one_v_one_player1_total_throws)
+                    self.one_v_one_player1_total_hits_var_label.configure(text=self.one_v_one_player1_total_hits)
+                    self.one_v_one_player1_total_percentage_var_label.configure(text=f'{self.calculate_percentage(self.one_v_one_player1_total_hits, self.one_v_one_player1_total_throws)}%')
+                    self.one_v_one_player2_score_label.configure(text=self.one_v_one_player2_cups_left)
 
-                if self.one_v_one_player1_doubles % 2 == 0:
-                    if self.one_v_one_player1_total_throws % 2 == 1:
-                        self.one_v_one_deactivate_button(self.one_v_one_player1)
-                else:
-                    if self.one_v_one_player1_total_throws % 2 == 0:
-                        self.one_v_one_deactivate_button(self.one_v_one_player1)
+                    # Ha sikerult ledobni az osszes hatrelevo poharat elinditjuk az overtimeot
+                    if self.one_v_one_player2_cups_left == 0:
+                        self.one_v_one_overtime_start()
 
 
             # Ha player 2 hit
             case self.one_v_one_player2:
-                self.one_v_one_player2_total_throws += 1
-                self.one_v_one_player2_total_hits += 1
-                self.one_v_one_player1_cups_left -= 1
+                # Ha a hosszabbitas nem aktiv
+                if self.one_v_one_overtime_var == False:
+                    self.one_v_one_player2_total_throws += 1
+                    self.one_v_one_player2_total_hits += 1
+                    self.one_v_one_player1_cups_left -= 1
 
-                # Labelek megvaltoztatasa
-                self.one_v_one_player2_total_throws_var_label.configure(text=self.one_v_one_player2_total_throws)
-                self.one_v_one_player2_total_hits_var_label.configure(text=self.one_v_one_player2_total_hits)
-                self.one_v_one_player2_total_percentage_var_label.configure(text=f'{self.calculate_percentage(self.one_v_one_player2_total_hits, self.one_v_one_player2_total_throws)}%')
-                self.one_v_one_player1_score_label.configure(text=self.one_v_one_player1_cups_left)
+                    # Labelek megvaltoztatasa
+                    self.one_v_one_player2_total_throws_var_label.configure(text=self.one_v_one_player2_total_throws)
+                    self.one_v_one_player2_total_hits_var_label.configure(text=self.one_v_one_player2_total_hits)
+                    self.one_v_one_player2_total_percentage_var_label.configure(text=f'{self.calculate_percentage(self.one_v_one_player2_total_hits, self.one_v_one_player2_total_throws)}%')
+                    self.one_v_one_player1_score_label.configure(text=self.one_v_one_player1_cups_left)
 
-                # Ha nem a 3. dobas
-                if self.one_v_one_third_shot == False:
-                    # Egyhuzamban torteno hitek noveles
-                    self.one_v_one_player2_throws_without_miss += 1
+                    # Ha nem a 3. dobas
+                    if self.one_v_one_third_shot == False:
+                        # Egyhuzamban torteno hitek noveles
+                        self.one_v_one_player2_throws_without_miss += 1
 
-                    if self.one_v_one_player2_throws_without_miss == 2:
-                        self.one_v_one_player2_doubles += 1
-                        self.one_v_one_third_shot = True
-                        self.one_v_one_check_endgame()
-                        return
+                        if self.one_v_one_player2_throws_without_miss == 2:
+                            self.one_v_one_player2_doubles += 1
+                            self.one_v_one_third_shot = True
+                            self.one_v_one_check_endgame()
+                            return
+                    else:
+                        self.one_v_one_third_shot = False
+                        self.one_v_one_player2_throws_without_miss = 0
+
+                    # Aktiv jatekos cserejenek ellenorzese(Elso korben egybol cserelunk, mert a kezdes 1 labdaval tortenik)        
+                    if self.one_v_one_player2_doubles % 2 == 0:
+                        if self.one_v_one_player2_total_throws % 2 == 0:
+                            self.one_v_one_deactivate_button(self.one_v_one_player2)
+                    else:
+                        if self.one_v_one_player2_total_throws % 2 == 1:
+                            self.one_v_one_deactivate_button(self.one_v_one_player2)
+
+                    # Jatek vegenek ellenorzese
+                    self.one_v_one_check_endgame()
+
+                # Addig kell dobni meg el nem eri a 0-at az ellenfel poharainak a szama
                 else:
-                    self.one_v_one_third_shot = False
-                    self.one_v_one_player2_throws_without_miss = 0
+                    self.one_v_one_player2_total_throws += 1
+                    self.one_v_one_player2_total_hits += 1
+                    self.one_v_one_player1_cups_left -= 1
 
-                # Aktiv jatekos cserejenek ellenorzese(Elso korben egybol cserelunk, mert a kezdes 1 labdaval tortenik)        
-                if self.one_v_one_player2_doubles % 2 == 0:
-                    if self.one_v_one_player2_total_throws % 2 == 0:
-                        self.one_v_one_deactivate_button(self.one_v_one_player2)
-                else:
-                    if self.one_v_one_player2_total_throws % 2 == 1:
-                        self.one_v_one_deactivate_button(self.one_v_one_player2)
-
-        # Jatek vegenek ellenorzese
-        self.one_v_one_check_endgame()
+                    # Labelek valtoztatasa
+                    self.one_v_one_player2_total_throws_var_label.configure(text=self.one_v_one_player2_total_throws)
+                    self.one_v_one_player2_total_hits_var_label.configure(text=self.one_v_one_player2_total_hits)
+                    self.one_v_one_player2_total_percentage_var_label.configure(text=f'{self.calculate_percentage(self.one_v_one_player2_total_hits, self.one_v_one_player2_total_throws)}%')
+                    self.one_v_one_player1_score_label.configure(text=self.one_v_one_player1_cups_left)
+                    
+                    # Ha sikerult ledobni az osszes hatrelevo poharat elinditjuk az overtimeot
+                    if self.one_v_one_player1_cups_left == 0:
+                        self.one_v_one_overtime_start()
 
 
     # 1v1 Miss funckio
@@ -493,53 +532,69 @@ class TrackerWindow(ctk.CTk):
         match player:
             # Ha one_v_one_player1 miss
             case self.one_v_one_player1:
-                self.one_v_one_player1_total_throws += 1
-                self.one_v_one_player1_total_miss += 1
-                
-                # Labelek valtoztatasa
-                self.one_v_one_player1_total_throws_var_label.configure(text=self.one_v_one_player1_total_throws)
-                self.one_v_one_player1_total_miss_var_label.configure(text=self.one_v_one_player1_total_miss)
-                self.one_v_one_player1_total_percentage_var_label.configure(text=f'{self.calculate_percentage(self.one_v_one_player1_total_hits, self.one_v_one_player1_total_throws)}%')
+                # Ha a hosszabbitas nem aktiv
+                if self.one_v_one_overtime_var == False:
+                    self.one_v_one_player1_total_throws += 1
+                    self.one_v_one_player1_total_miss += 1
+                    
+                    # Labelek valtoztatasa
+                    self.one_v_one_player1_total_throws_var_label.configure(text=self.one_v_one_player1_total_throws)
+                    self.one_v_one_player1_total_miss_var_label.configure(text=self.one_v_one_player1_total_miss)
+                    self.one_v_one_player1_total_percentage_var_label.configure(text=f'{self.calculate_percentage(self.one_v_one_player1_total_hits, self.one_v_one_player1_total_throws)}%')
 
-                # Egyhuzamban torteno hitek 0-zasa  es 3. dobas valtozojanak visszaallitasa
-                self.one_v_one_player1_throws_without_miss = 0
-                if self.one_v_one_third_shot == True:
-                    self.one_v_one_third_shot = False
+                    # Egyhuzamban torteno hitek 0-zasa  es 3. dobas valtozojanak visszaallitasa
+                    self.one_v_one_player1_throws_without_miss = 0
+                    if self.one_v_one_third_shot == True:
+                        self.one_v_one_third_shot = False
 
-                # Aktiv jatekos cserejenek ellenorzese(Elso korben egybol cserelunk, mert a kezdes 1 labdaval tortenik)
-                if self.one_v_one_starter_throw_happened == False:
-                    self.one_v_one_deactivate_button(self.one_v_one_player1)
-                    self.one_v_one_starter_throw_happened = True
-
-                if self.one_v_one_player1_doubles % 2 == 0:
-                    if self.one_v_one_player1_total_throws % 2 == 1:
+                    # Aktiv jatekos cserejenek ellenorzese(Elso korben egybol cserelunk, mert a kezdes 1 labdaval tortenik)
+                    if self.one_v_one_starter_throw_happened == False:
                         self.one_v_one_deactivate_button(self.one_v_one_player1)
+                        self.one_v_one_starter_throw_happened = True
+
+                    if self.one_v_one_player1_doubles % 2 == 0:
+                        if self.one_v_one_player1_total_throws % 2 == 1:
+                            self.one_v_one_deactivate_button(self.one_v_one_player1)
+                    else:
+                        if self.one_v_one_player1_total_throws % 2 == 0:
+                            self.one_v_one_deactivate_button(self.one_v_one_player1)
+
+                # Ha hosszabbitasban miss instant Lose
                 else:
-                    if self.one_v_one_player1_total_throws % 2 == 0:
-                        self.one_v_one_deactivate_button(self.one_v_one_player1)
+                    self.one_v_one_player1_total_throws += 1
+                    self.one_v_one_player1_total_miss += 1
+                    self.one_v_one_check_endgame()
 
             # Ha player 2 miss
             case self.one_v_one_player2:
-                self.one_v_one_player2_total_throws += 1
-                self.one_v_one_player2_total_miss += 1
+                # Ha a hosszabbitas nem aktiv
+                if self.one_v_one_overtime_var == False:
+                    self.one_v_one_player2_total_throws += 1
+                    self.one_v_one_player2_total_miss += 1
 
-                # Labelek megvaltoztatasa
-                self.one_v_one_player2_total_throws_var_label.configure(text=self.one_v_one_player2_total_throws)
-                self.one_v_one_player2_total_miss_var_label.configure(text=self.one_v_one_player2_total_miss)
-                self.one_v_one_player2_total_percentage_var_label.configure(text=f'{self.calculate_percentage(self.one_v_one_player2_total_hits, self.one_v_one_player2_total_throws)}%')
+                    # Labelek megvaltoztatasa
+                    self.one_v_one_player2_total_throws_var_label.configure(text=self.one_v_one_player2_total_throws)
+                    self.one_v_one_player2_total_miss_var_label.configure(text=self.one_v_one_player2_total_miss)
+                    self.one_v_one_player2_total_percentage_var_label.configure(text=f'{self.calculate_percentage(self.one_v_one_player2_total_hits, self.one_v_one_player2_total_throws)}%')
 
-                # Egyhuzamban torteno hitek 0-zasa es 3. dobas valtozojanak visszaallitasa
-                self.one_v_one_player2_throws_without_miss = 0
-                if self.one_v_one_third_shot == True:
-                    self.one_v_one_third_shot = False
+                    # Egyhuzamban torteno hitek 0-zasa es 3. dobas valtozojanak visszaallitasa
+                    self.one_v_one_player2_throws_without_miss = 0
+                    if self.one_v_one_third_shot == True:
+                        self.one_v_one_third_shot = False
 
-                # Aktiv jatekos cserejenek ellenorzese(Elso korben egybol cserelunk, mert a kezdes 1 labdaval tortenik)        
-                if self.one_v_one_player2_doubles % 2 == 0:
-                    if self.one_v_one_player2_total_throws % 2 == 0:
-                        self.one_v_one_deactivate_button(self.one_v_one_player2)
+                    # Aktiv jatekos cserejenek ellenorzese(Elso korben egybol cserelunk, mert a kezdes 1 labdaval tortenik)        
+                    if self.one_v_one_player2_doubles % 2 == 0:
+                        if self.one_v_one_player2_total_throws % 2 == 0:
+                            self.one_v_one_deactivate_button(self.one_v_one_player2)
+                    else:
+                        if self.one_v_one_player2_total_throws % 2 == 1:
+                            self.one_v_one_deactivate_button(self.one_v_one_player2)
+
+                # Ha hosszabbitasban miss instant Lose
                 else:
-                    if self.one_v_one_player2_total_throws % 2 == 1:
-                        self.one_v_one_deactivate_button(self.one_v_one_player2)
+                    self.one_v_one_player2_total_throws += 1
+                    self.one_v_one_player2_total_miss += 1
+                    self.one_v_one_check_endgame()
 
 
     # Jatek vegenek ellenorzese
@@ -552,26 +607,53 @@ class TrackerWindow(ctk.CTk):
             if self.one_v_one_player2_cups_left == 0:
                 winner = self.one_v_one_player1
 
-            # Widgetek elfelejtese:
-            self.one_v_one_top_frame.pack_forget()
-            self.one_v_one_player1_frame.pack_forget()
-            self.one_v_one_player2_frame.pack_forget()
+            if self.one_v_one_overtime_var == False:
+                self.one_v_one_overtime(winner)
+            else:
 
-            # Uj ablak generalasa a gyoztes mujtatasahoz
-            self.geometry('500x200')
-            # Győztes nevének kiírása
-            self.one_v_one_winner_label = ctk.CTkLabel(self, text=f'Congratulations! The winner is {winner}!', font=("Arial", 26))
-            self.one_v_one_winner_label.pack(pady=20)
+                # Widgetek elfelejtese:
+                self.one_v_one_top_frame.pack_forget()
+                self.one_v_one_player1_frame.pack_forget()
+                self.one_v_one_player2_frame.pack_forget()
 
-            # Gombok a játék kezelésére
-            self.one_v_one_end_button_frame = ctk.CTkFrame(self)
-            self.one_v_one_end_button_frame.pack(pady=10)
+                # Uj ablak generalasa a gyoztes mujtatasahoz
+                self.geometry('500x200')
+                # Győztes nevének kiírása
+                self.one_v_one_winner_label = ctk.CTkLabel(self, text=f'Congratulations! The winner is {winner}!', font=("Arial", 26))
+                self.one_v_one_winner_label.pack(pady=20)
 
-            new_game_one_v_one_end_button = ctk.CTkButton(self.one_v_one_end_button_frame, text="New Game", command=self.one_v_one_new_game, height=50)
-            new_game_one_v_one_end_button.pack(side="left", padx=10)
+                # Gombok a játék kezelésére
+                self.one_v_one_end_button_frame = ctk.CTkFrame(self)
+                self.one_v_one_end_button_frame.pack(pady=10)
 
-            continue_one_v_one_end_button = ctk.CTkButton(self.one_v_one_end_button_frame, text="Continue", command=lambda: print('k'), height=50)
-            continue_one_v_one_end_button.pack(side="left", padx=10)
+                new_game_one_v_one_end_button = ctk.CTkButton(self.one_v_one_end_button_frame, text="New Game", command=self.one_v_one_new_game, height=50)
+                new_game_one_v_one_end_button.pack(side="left", padx=10)
+
+                continue_one_v_one_end_button = ctk.CTkButton(self.one_v_one_end_button_frame, text="Continue", command=lambda: print('k'), height=50)
+                continue_one_v_one_end_button.pack(side="left", padx=10)
+
+
+    # Overtime
+    def one_v_one_overtime(self, winner):
+        self.one_v_one_overtime_var = True
+        match winner:
+            case self.one_v_one_player1:
+                self.one_v_one_player1_hit_button.configure(state=ctk.DISABLED)
+                self.one_v_one_player1_miss_button.configure(state=ctk.DISABLED)
+                self.one_v_one_player2_hit_one_v_one_end_button.configure(state=ctk.NORMAL)
+                self.one_v_one_player2_miss_one_v_one_end_button.configure(state=ctk.NORMAL)
+                
+            case self.one_v_one_player2:
+                self.one_v_one_player1_hit_button.configure(state=ctk.NORMAL)
+                self.one_v_one_player1_miss_button.configure(state=ctk.NORMAL)
+                self.one_v_one_player2_hit_one_v_one_end_button.configure(state=ctk.DISABLED)
+                self.one_v_one_player2_miss_one_v_one_end_button.configure(state=ctk.DISABLED)
+
+    
+    # Overtime elinditasa a sikeres visszaszallok utan
+    def one_v_one_overtime_start(self):
+        print('overtime started') # TODO
+        
 
 
     # Gomb aktivalasa az aktiv jatekosnak es deaktivalas a masiknak valami a soron levo jatekos felirat updatelese
