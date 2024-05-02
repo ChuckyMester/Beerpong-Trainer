@@ -251,17 +251,17 @@ class TrackerWindow(ctk.CTk):
         self.geometry('500x200')
 
         # Jatekosok valtozoba helyezese
-        player1 = self.player1_var.get()
-        player2 = self.player2_var.get()
+        one_v_one_player1 = self.player1_var.get()
+        one_v_one_player2 = self.player2_var.get()
 
         # Kezdojatekos eldontese
         self.starting_player_label = ctk.CTkLabel(self, text='Ki lesz a kezdojatekos?', font=('Arial',26))
         self.starting_player_label.pack(pady=20)
 
-        self.starting_player_one_v_one_end_button1 = ctk.CTkButton(self, text=player1, font=('Arial',16), height=70, command=lambda: self.update_starting_player('1v1', player1, player2))
+        self.starting_player_one_v_one_end_button1 = ctk.CTkButton(self, text=one_v_one_player1, font=('Arial',16), height=70, command=lambda: self.update_starting_player('1v1', one_v_one_player1, one_v_one_player2))
         self.starting_player_one_v_one_end_button1.place(rely=0.4, relx=0.2)
 
-        self.starting_player_one_v_one_end_button2 = ctk.CTkButton(self, text=player2, font=('Arial',16), height=70, command=lambda: self.update_starting_player('1v1', player2, player1))
+        self.starting_player_one_v_one_end_button2 = ctk.CTkButton(self, text=one_v_one_player2, font=('Arial',16), height=70, command=lambda: self.update_starting_player('1v1', one_v_one_player2, one_v_one_player1))
         self.starting_player_one_v_one_end_button2.place(rely=0.4, relx=0.5)
 
 
@@ -275,16 +275,21 @@ class TrackerWindow(ctk.CTk):
         self.starting_player_one_v_one_end_button2.place_forget()
 
         # Valtozok a jatekhoz
-        self.player1 = starting_player
-        self.player2 = other_player
-        self.player1_cups_left = 10
-        self.player2_cups_left = 10
-        self.player1_total_throws = 0
-        self.player2_total_throws = 0
-        self.player1_total_hits = 0
-        self.player2_total_hits = 0
-        self.player1_total_miss = 0
-        self.player2_total_miss = 0
+        self.one_v_one_player1 = starting_player
+        self.one_v_one_player2 = other_player
+        self.one_v_one_player1_cups_left = 10
+        self.one_v_one_player2_cups_left = 10
+        self.one_v_one_player1_total_throws = 0
+        self.one_v_one_player2_total_throws = 0
+        self.one_v_one_player1_total_hits = 0
+        self.one_v_one_player2_total_hits = 0
+        self.one_v_one_player1_total_miss = 0
+        self.one_v_one_player2_total_miss = 0
+        self.one_v_one_starter_throw_happened = False # 1-rol inditjuk a korok szamat
+        self.one_v_one_player1_doubles = 0
+        self.one_v_one_player2_doubles = 0
+        self.one_v_one_first_throw = False   # Valtozo a duplazas nyomonkovetesehez   (Truera valtozik, ha HIT)
+        self.one_v_one_second_throw = False  # Valtozo a duplazas nyomonkovetesehez   (Truera valtozik, ha HIT)
 
         # Keret a címke számára a tetején
         self.one_v_one_top_frame = ctk.CTkFrame(self)
@@ -295,7 +300,7 @@ class TrackerWindow(ctk.CTk):
         self.one_v_one_current_player_label.pack(side='left', padx=(180,0))
 
         # Soron levo jatekos var label
-        self.one_v_one_current_name_label = ctk.CTkLabel(self.one_v_one_top_frame, text=self.player1, font=("Arial", 24))
+        self.one_v_one_current_name_label = ctk.CTkLabel(self.one_v_one_top_frame, text=self.one_v_one_player1, font=("Arial", 24))
         self.one_v_one_current_name_label.pack(side='left', padx=25)
 
         # Player1 keret
@@ -307,25 +312,25 @@ class TrackerWindow(ctk.CTk):
         self.one_v_one_player2_frame.pack(side="right", padx=10, pady=10, fill="both", expand=True)
 
         # Player1 nev es fentlevo poharak
-        self.one_v_one_player1_name_label = ctk.CTkLabel(self.one_v_one_player1_frame, text=self.player1, font=("Arial", 26))
+        self.one_v_one_player1_name_label = ctk.CTkLabel(self.one_v_one_player1_frame, text=self.one_v_one_player1, font=("Arial", 26))
         self.one_v_one_player1_name_label.pack(pady=(20, 5))
-        self.one_v_one_player1_score_label = ctk.CTkLabel(self.one_v_one_player1_frame, text=str(self.player1_cups_left), font=("Arial", 24))
+        self.one_v_one_player1_score_label = ctk.CTkLabel(self.one_v_one_player1_frame, text=str(self.one_v_one_player1_cups_left), font=("Arial", 24))
         self.one_v_one_player1_score_label.pack(pady=5)
 
         # Player1 gombok
-        self.one_v_one_player1_one_v_one_end_button_frame = ctk.CTkFrame(self.one_v_one_player1_frame)
-        self.one_v_one_player1_one_v_one_end_button_frame.pack(pady=10)
-        self.one_v_one_payer1_hit_one_v_one_end_button = ctk.CTkButton(self.one_v_one_player1_one_v_one_end_button_frame, text="Hit", command=lambda: self.one_v_one_hit(self.player1), fg_color="green", height=60, font=("Arial", 25))
-        self.one_v_one_payer1_hit_one_v_one_end_button.pack(side='left', padx=10)
-        self.one_v_one_player1_miss_one_v_one_end_button = ctk.CTkButton(self.one_v_one_player1_one_v_one_end_button_frame, text="Miss", command=lambda: self.one_v_one_miss(self.player1), fg_color="red", height=60, font=("Arial", 25))
-        self.one_v_one_player1_miss_one_v_one_end_button.pack(side='left', padx=10)
+        self.one_v_one_player1_button_frame = ctk.CTkFrame(self.one_v_one_player1_frame)
+        self.one_v_one_player1_button_frame.pack(pady=10)
+        self.one_v_one_player1_hit_button = ctk.CTkButton(self.one_v_one_player1_button_frame, text="Hit", command=lambda: self.one_v_one_hit(self.one_v_one_player1), fg_color="green", height=60, font=("Arial", 25))
+        self.one_v_one_player1_hit_button.pack(side='left', padx=10)
+        self.one_v_one_player1_miss_button = ctk.CTkButton(self.one_v_one_player1_button_frame, text="Miss", command=lambda: self.one_v_one_miss(self.one_v_one_player1), fg_color="red", height=60, font=("Arial", 25))
+        self.one_v_one_player1_miss_button.pack(side='left', padx=10)
 
         # Player1 Total throw statisztika 
         self.one_v_one_player1_total_throws_stat_frame = ctk.CTkFrame(self.one_v_one_player1_frame)
         self.one_v_one_player1_total_throws_stat_frame.pack(pady=(20,0), fill="x")
         self.one_v_one_player1_total_throws_stat_label = ctk.CTkLabel(self.one_v_one_player1_total_throws_stat_frame, text="Total throws:", font=("Arial", 20))
         self.one_v_one_player1_total_throws_stat_label.pack(side='left', padx=10)
-        self.one_v_one_player1_total_throws_var_label = ctk.CTkLabel(self.one_v_one_player1_total_throws_stat_frame, text=self.player1_total_throws, font=("Arial", 20))
+        self.one_v_one_player1_total_throws_var_label = ctk.CTkLabel(self.one_v_one_player1_total_throws_stat_frame, text=self.one_v_one_player1_total_throws, font=("Arial", 20))
         self.one_v_one_player1_total_throws_var_label.pack(side='left', padx=10)
 
         # Player1 Total hits statisztika 
@@ -333,7 +338,7 @@ class TrackerWindow(ctk.CTk):
         self.one_v_one_player1_total_hits_stat_frame.pack(pady=0, fill="x")
         self.one_v_one_player1_total_hits_stat_label = ctk.CTkLabel(self.one_v_one_player1_total_hits_stat_frame, text="Total hits:", font=("Arial", 20))
         self.one_v_one_player1_total_hits_stat_label.pack(side='left', padx=10)
-        self.one_v_one_player1_total_hits_var_label = ctk.CTkLabel(self.one_v_one_player1_total_hits_stat_frame, text=self.player1_total_hits, font=("Arial", 20))
+        self.one_v_one_player1_total_hits_var_label = ctk.CTkLabel(self.one_v_one_player1_total_hits_stat_frame, text=self.one_v_one_player1_total_hits, font=("Arial", 20))
         self.one_v_one_player1_total_hits_var_label.pack(side='left', padx=10)
 
         # Player1 Total miss statisztika 
@@ -341,7 +346,7 @@ class TrackerWindow(ctk.CTk):
         self.one_v_one_player1_total_miss_stat_frame.pack(pady=0, fill="x")
         self.one_v_one_player1_total_miss_stat_label = ctk.CTkLabel(self.one_v_one_player1_total_miss_stat_frame, text="Total misses:", font=("Arial", 20))
         self.one_v_one_player1_total_miss_stat_label.pack(side='left', padx=10)
-        self.one_v_one_player1_total_miss_var_label = ctk.CTkLabel(self.one_v_one_player1_total_miss_stat_frame, text=self.player1_total_miss, font=("Arial", 20))
+        self.one_v_one_player1_total_miss_var_label = ctk.CTkLabel(self.one_v_one_player1_total_miss_stat_frame, text=self.one_v_one_player1_total_miss, font=("Arial", 20))
         self.one_v_one_player1_total_miss_var_label.pack(side='left', padx=10)
 
         # Player1 Total percentage statisztika 
@@ -349,21 +354,21 @@ class TrackerWindow(ctk.CTk):
         self.one_v_one_player1_total_percentage_stat_frame.pack(pady=0, fill="x")
         self.one_v_one_player1_total_percentage_stat_label = ctk.CTkLabel(self.one_v_one_player1_total_percentage_stat_frame, text="Total percentage:", font=("Arial", 20))
         self.one_v_one_player1_total_percentage_stat_label.pack(side='left', padx=10)
-        self.one_v_one_player1_total_percentage_var_label = ctk.CTkLabel(self.one_v_one_player1_total_percentage_stat_frame, text=f'{self.calculate_percentage(self.player1_total_hits, self.player1_total_throws)}%', font=("Arial", 20))
+        self.one_v_one_player1_total_percentage_var_label = ctk.CTkLabel(self.one_v_one_player1_total_percentage_stat_frame, text=f'{self.calculate_percentage(self.one_v_one_player1_total_hits, self.one_v_one_player1_total_throws)}%', font=("Arial", 20))
         self.one_v_one_player1_total_percentage_var_label.pack(side='left', padx=10)
 
         # Player2 nev es fentlevo poharak
-        self.one_v_one_player2_name_label = ctk.CTkLabel(self.one_v_one_player2_frame, text=self.player2, font=("Arial", 26))
+        self.one_v_one_player2_name_label = ctk.CTkLabel(self.one_v_one_player2_frame, text=self.one_v_one_player2, font=("Arial", 26))
         self.one_v_one_player2_name_label.pack(pady=(20, 5))
-        self.one_v_one_player2_score_label = ctk.CTkLabel(self.one_v_one_player2_frame, text=str(self.player2_cups_left), font=("Arial", 24))
+        self.one_v_one_player2_score_label = ctk.CTkLabel(self.one_v_one_player2_frame, text=str(self.one_v_one_player2_cups_left), font=("Arial", 24))
         self.one_v_one_player2_score_label.pack(pady=5)
 
         # Player2 gombok
         self.one_v_one_player2_one_v_one_end_button_frame = ctk.CTkFrame(self.one_v_one_player2_frame)
         self.one_v_one_player2_one_v_one_end_button_frame.pack(pady=10)
-        self.one_v_one_player2_hit_one_v_one_end_button = ctk.CTkButton(self.one_v_one_player2_one_v_one_end_button_frame, text="Hit", command=lambda: self.one_v_one_hit(self.player2), fg_color="green", height=60, font=("Arial", 25))
+        self.one_v_one_player2_hit_one_v_one_end_button = ctk.CTkButton(self.one_v_one_player2_one_v_one_end_button_frame, text="Hit", command=lambda: self.one_v_one_hit(self.one_v_one_player2), fg_color="green", height=60, font=("Arial", 25))
         self.one_v_one_player2_hit_one_v_one_end_button.pack(side='left', pady=2, padx=10)
-        self.one_v_one_player2_miss_one_v_one_end_button = ctk.CTkButton(self.one_v_one_player2_one_v_one_end_button_frame, text="Miss", command=lambda: self.one_v_one_miss(self.player2), fg_color="red", height=60, font=("Arial", 25))
+        self.one_v_one_player2_miss_one_v_one_end_button = ctk.CTkButton(self.one_v_one_player2_one_v_one_end_button_frame, text="Miss", command=lambda: self.one_v_one_miss(self.one_v_one_player2), fg_color="red", height=60, font=("Arial", 25))
         self.one_v_one_player2_miss_one_v_one_end_button.pack(side='left', pady=2, padx=10)
         
         # Player2 Total throw statisztika 
@@ -371,7 +376,7 @@ class TrackerWindow(ctk.CTk):
         self.one_v_one_player2_total_throws_stat_frame.pack(pady=(20,0), fill="x")
         self.one_v_one_player2_total_throws_stat_label = ctk.CTkLabel(self.one_v_one_player2_total_throws_stat_frame, text="Total throws:", font=("Arial", 20))
         self.one_v_one_player2_total_throws_stat_label.pack(side='left', padx=10)
-        self.one_v_one_player2_total_throws_var_label = ctk.CTkLabel(self.one_v_one_player2_total_throws_stat_frame, text=self.player2_total_throws, font=("Arial", 20))
+        self.one_v_one_player2_total_throws_var_label = ctk.CTkLabel(self.one_v_one_player2_total_throws_stat_frame, text=self.one_v_one_player2_total_throws, font=("Arial", 20))
         self.one_v_one_player2_total_throws_var_label.pack(side='left', padx=10)
 
         # Player2 Total hits statisztika 
@@ -379,7 +384,7 @@ class TrackerWindow(ctk.CTk):
         self.one_v_one_player2_total_hits_stat_frame.pack(pady=0, fill="x")
         self.one_v_one_player2_total_hits_stat_label = ctk.CTkLabel(self.one_v_one_player2_total_hits_stat_frame, text="Total hits:", font=("Arial", 20))
         self.one_v_one_player2_total_hits_stat_label.pack(side='left', padx=10)
-        self.one_v_one_player2_total_hits_var_label = ctk.CTkLabel(self.one_v_one_player2_total_hits_stat_frame, text=self.player2_total_hits, font=("Arial", 20))
+        self.one_v_one_player2_total_hits_var_label = ctk.CTkLabel(self.one_v_one_player2_total_hits_stat_frame, text=self.one_v_one_player2_total_hits, font=("Arial", 20))
         self.one_v_one_player2_total_hits_var_label.pack(side='left', padx=10)
 
         # Player2 Total miss statisztika 
@@ -387,7 +392,7 @@ class TrackerWindow(ctk.CTk):
         self.one_v_one_player2_total_miss_stat_frame.pack(pady=0, fill="x")
         self.one_v_one_player2_total_miss_stat_label = ctk.CTkLabel(self.one_v_one_player2_total_miss_stat_frame, text="Total misses:", font=("Arial", 20))
         self.one_v_one_player2_total_miss_stat_label.pack(side='left', padx=10)
-        self.one_v_one_player2_total_miss_var_label = ctk.CTkLabel(self.one_v_one_player2_total_miss_stat_frame, text=self.player2_total_miss, font=("Arial", 20))
+        self.one_v_one_player2_total_miss_var_label = ctk.CTkLabel(self.one_v_one_player2_total_miss_stat_frame, text=self.one_v_one_player2_total_miss, font=("Arial", 20))
         self.one_v_one_player2_total_miss_var_label.pack(side='left', padx=10)
 
         # Player2 Total percentage statisztika 
@@ -395,36 +400,59 @@ class TrackerWindow(ctk.CTk):
         self.one_v_one_player2_total_percentage_stat_frame.pack(pady=0, fill="x")
         self.one_v_one_player2_total_percentage_stat_label = ctk.CTkLabel(self.one_v_one_player2_total_percentage_stat_frame, text="Total percentage:", font=("Arial", 20))
         self.one_v_one_player2_total_percentage_stat_label.pack(side='left', padx=10)
-        self.one_v_one_player2_total_percentage_var_label = ctk.CTkLabel(self.one_v_one_player2_total_percentage_stat_frame, text=f'{self.calculate_percentage(self.player2_total_hits, self.player2_total_throws)}%', font=("Arial", 20))
+        self.one_v_one_player2_total_percentage_var_label = ctk.CTkLabel(self.one_v_one_player2_total_percentage_stat_frame, text=f'{self.calculate_percentage(self.one_v_one_player2_total_hits, self.one_v_one_player2_total_throws)}%', font=("Arial", 20))
         self.one_v_one_player2_total_percentage_var_label.pack(side='left', padx=10)
 
 
     #1v1 Hit funkcio
     def one_v_one_hit(self, player):
         match player:
-            # Ha player1 hit
-            case self.player1:
-                self.player1_total_throws += 1
-                self.player1_total_hits += 1
-                self.player2_cups_left -= 1
+            # Ha one_v_one_player1 hit
+            case self.one_v_one_player1:
+                self.one_v_one_player1_total_throws += 1
+                self.one_v_one_player1_total_hits += 1
+                self.one_v_one_player2_cups_left -= 1
                 
                 # Labelek valtoztatasa
-                self.one_v_one_player1_total_throws_var_label.configure(text=self.player1_total_throws)
-                self.one_v_one_player1_total_hits_var_label.configure(text=self.player1_total_hits)
-                self.one_v_one_player1_total_percentage_var_label.configure(text=f'{self.calculate_percentage(self.player1_total_hits, self.player1_total_throws)}%')
-                self.one_v_one_player2_score_label.configure(text=self.player2_cups_left)
+                self.one_v_one_player1_total_throws_var_label.configure(text=self.one_v_one_player1_total_throws)
+                self.one_v_one_player1_total_hits_var_label.configure(text=self.one_v_one_player1_total_hits)
+                self.one_v_one_player1_total_percentage_var_label.configure(text=f'{self.calculate_percentage(self.one_v_one_player1_total_hits, self.one_v_one_player1_total_throws)}%')
+                self.one_v_one_player2_score_label.configure(text=self.one_v_one_player2_cups_left)
+
+                # Aktiv jatekos cserejenek ellenorzese(Elso korben egybol cserelunk, mert a kezdes 1 labdaval tortenik)
+                if self.one_v_one_starter_throw_happened == False:
+                    self.one_v_one_deactivate_button(self.one_v_one_player1)
+                    self.one_v_one_starter_throw_happened = True
+
+                elif self.one_v_one_first_throw == False or self.one_v_one_second_throw == False: # Dupla mar nem lehet
+                    if self.one_v_one_player1_doubles % 2 == 0:
+                        if self.one_v_one_player1_total_throws % 2 == 1:
+                            self.one_v_one_deactivate_button(self.one_v_one_player1)
+                    else:
+                        if self.one_v_one_player1_total_throws % 2 == 0:
+                            self.one_v_one_deactivate_button(self.one_v_one_player1)
+
 
             # Ha player 2 hit
-            case self.player2:
-                self.player2_total_throws += 1
-                self.player2_total_hits += 1
-                self.player1_cups_left -= 1
+            case self.one_v_one_player2:
+                self.one_v_one_player2_total_throws += 1
+                self.one_v_one_player2_total_hits += 1
+                self.one_v_one_player1_cups_left -= 1
 
                 # Labelek megvaltoztatasa
-                self.one_v_one_player2_total_throws_var_label.configure(text=self.player2_total_throws)
-                self.one_v_one_player2_total_hits_var_label.configure(text=self.player2_total_hits)
-                self.one_v_one_player2_total_percentage_var_label.configure(text=f'{self.calculate_percentage(self.player2_total_hits, self.player2_total_throws)}%')
-                self.one_v_one_player1_score_label.configure(text=self.player1_cups_left)
+                self.one_v_one_player2_total_throws_var_label.configure(text=self.one_v_one_player2_total_throws)
+                self.one_v_one_player2_total_hits_var_label.configure(text=self.one_v_one_player2_total_hits)
+                self.one_v_one_player2_total_percentage_var_label.configure(text=f'{self.calculate_percentage(self.one_v_one_player2_total_hits, self.one_v_one_player2_total_throws)}%')
+                self.one_v_one_player1_score_label.configure(text=self.one_v_one_player1_cups_left)
+
+                # Aktiv jatekos cserejenek ellenorzese(Elso korben egybol cserelunk, mert a kezdes 1 labdaval tortenik)        
+                if self.one_v_one_first_throw == False or self.one_v_one_second_throw == False: # Dupla mar nem lehet
+                    if self.one_v_one_player2_doubles % 2 == 0:
+                        if self.one_v_one_player2_total_throws % 2 == 0:
+                            self.one_v_one_deactivate_button(self.one_v_one_player2)
+                    else:
+                        if self.one_v_one_player2_total_throws % 2 == 1:
+                            self.one_v_one_deactivate_button(self.one_v_one_player2)
 
         # Jatek vegenek ellenorzese
         self.one_v_one_check_endgame()
@@ -433,36 +461,58 @@ class TrackerWindow(ctk.CTk):
     # 1v1 Miss funckio
     def one_v_one_miss(self, player):
         match player:
-            # Ha player1 miss
-            case self.player1:
-                self.player1_total_throws += 1
-                self.player1_total_miss += 1
+            # Ha one_v_one_player1 miss
+            case self.one_v_one_player1:
+                self.one_v_one_player1_total_throws += 1
+                self.one_v_one_player1_total_miss += 1
                 
                 # Labelek valtoztatasa
-                self.one_v_one_player1_total_throws_var_label.configure(text=self.player1_total_throws)
-                self.one_v_one_player1_total_miss_var_label.configure(text=self.player1_total_miss)
-                self.one_v_one_player1_total_percentage_var_label.configure(text=f'{self.calculate_percentage(self.player1_total_hits, self.player1_total_throws)}%')
+                self.one_v_one_player1_total_throws_var_label.configure(text=self.one_v_one_player1_total_throws)
+                self.one_v_one_player1_total_miss_var_label.configure(text=self.one_v_one_player1_total_miss)
+                self.one_v_one_player1_total_percentage_var_label.configure(text=f'{self.calculate_percentage(self.one_v_one_player1_total_hits, self.one_v_one_player1_total_throws)}%')
+
+                # Aktiv jatekos cserejenek ellenorzese(Elso korben egybol cserelunk, mert a kezdes 1 labdaval tortenik)
+                if self.one_v_one_starter_throw_happened == False:
+                    self.one_v_one_deactivate_button(self.one_v_one_player1)
+                    self.one_v_one_starter_throw_happened = True
+
+                elif self.one_v_one_first_throw == False or self.one_v_one_second_throw == False: # Dupla mar nem lehet
+                    if self.one_v_one_player1_doubles % 2 == 0:
+                        if self.one_v_one_player1_total_throws % 2 == 1:
+                            self.one_v_one_deactivate_button(self.one_v_one_player1)
+                    else:
+                        if self.one_v_one_player1_total_throws % 2 == 0:
+                            self.one_v_one_deactivate_button(self.one_v_one_player1)
 
             # Ha player 2 miss
-            case self.player2:
-                self.player2_total_throws += 1
-                self.player2_total_miss += 1
+            case self.one_v_one_player2:
+                self.one_v_one_player2_total_throws += 1
+                self.one_v_one_player2_total_miss += 1
 
                 # Labelek megvaltoztatasa
-                self.one_v_one_player2_total_throws_var_label.configure(text=self.player2_total_throws)
-                self.one_v_one_player2_total_miss_var_label.configure(text=self.player2_total_miss)
-                self.one_v_one_player2_total_percentage_var_label.configure(text=f'{self.calculate_percentage(self.player2_total_hits, self.player2_total_throws)}%')
+                self.one_v_one_player2_total_throws_var_label.configure(text=self.one_v_one_player2_total_throws)
+                self.one_v_one_player2_total_miss_var_label.configure(text=self.one_v_one_player2_total_miss)
+                self.one_v_one_player2_total_percentage_var_label.configure(text=f'{self.calculate_percentage(self.one_v_one_player2_total_hits, self.one_v_one_player2_total_throws)}%')
+
+                # Aktiv jatekos cserejenek ellenorzese(Elso korben egybol cserelunk, mert a kezdes 1 labdaval tortenik)        
+                if self.one_v_one_first_throw == False or self.one_v_one_second_throw == False: # Dupla mar nem lehet
+                    if self.one_v_one_player2_doubles % 2 == 0:
+                        if self.one_v_one_player2_total_throws % 2 == 0:
+                            self.one_v_one_deactivate_button(self.one_v_one_player2)
+                    else:
+                        if self.one_v_one_player2_total_throws % 2 == 1:
+                            self.one_v_one_deactivate_button(self.one_v_one_player2)
 
 
     # Jatek vegenek ellenorzese
     def one_v_one_check_endgame(self):
         winner = None
         # Ha valamelyik jatekosnak 0 pohara maradt
-        if self.player1_cups_left == 0 or self.player2_cups_left == 0:
-            if self.player1_cups_left == 0:
-                winner = self.player2
-            if self.player2_cups_left == 0:
-                winner = self.player1
+        if self.one_v_one_player1_cups_left == 0 or self.one_v_one_player2_cups_left == 0:
+            if self.one_v_one_player1_cups_left == 0:
+                winner = self.one_v_one_player2
+            if self.one_v_one_player2_cups_left == 0:
+                winner = self.one_v_one_player1
 
             # Widgetek elfelejtese:
             self.one_v_one_top_frame.pack_forget()
@@ -486,6 +536,28 @@ class TrackerWindow(ctk.CTk):
             continue_one_v_one_end_button.pack(side="left", padx=10)
 
 
+    # Gomb aktivalasa az aktiv jatekosnak es deaktivalas a masiknak valami a soron levo jatekos felirat updatelese
+    def one_v_one_deactivate_button(self, player):
+        match player:
+            case self.one_v_one_player1:
+                self.one_v_one_player1_hit_button.configure(state=ctk.DISABLED)
+                self.one_v_one_player1_miss_button.configure(state=ctk.DISABLED)
+
+                self.one_v_one_player2_hit_one_v_one_end_button.configure(state=ctk.NORMAL)
+                self.one_v_one_player2_miss_one_v_one_end_button.configure(state=ctk.NORMAL)
+
+                self.one_v_one_current_name_label.configure(text=self.one_v_one_player2)
+            case self.one_v_one_player2:
+                self.one_v_one_player1_hit_button.configure(state=ctk.NORMAL)
+                self.one_v_one_player1_miss_button.configure(state=ctk.NORMAL)
+
+                self.one_v_one_player2_hit_one_v_one_end_button.configure(state=ctk.DISABLED)
+                self.one_v_one_player2_miss_one_v_one_end_button.configure(state=ctk.DISABLED)
+
+                self.one_v_one_current_name_label.configure(text=self.one_v_one_player1)
+
+
+
     # Ha 1v1-nel az uj jatekot valasztja
     def one_v_one_new_game(self):    
 
@@ -494,14 +566,10 @@ class TrackerWindow(ctk.CTk):
         self.one_v_one_end_button_frame.pack_forget()
 
         # Ujra meghivtjuk a tracker window methodot
-        self.one_v_one_tracker_window(self.player2, self.player1)
+        self.one_v_one_tracker_window(self.one_v_one_player2, self.one_v_one_player1)
 
         
-
-
-
             
-
 
     # 2v2 Jatekablak
     def two_v_two_tracker_window(self):
