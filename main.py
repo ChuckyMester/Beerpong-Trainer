@@ -652,7 +652,30 @@ class TrackerWindow(ctk.CTk):
     
     # Overtime elinditasa a sikeres visszaszallok utan
     def one_v_one_overtime_start(self):
-        print('overtime started') # TODO
+
+        # Gombok allapotabol megnezzuk ki lesz a kezdo jatekos
+        if self.one_v_one_player1_hit_button.cget("state") == ctk.NORMAL: # Mivel utoljara az 1-es jatekos volt ezert 2-es lesz a kezdo
+
+            # Gombok beallitasa
+            self.one_v_one_player1_hit_button.configure(state=ctk.DISABLED)
+            self.one_v_one_player1_miss_button.configure(state=ctk.DISABLED)
+            self.one_v_one_player2_hit_one_v_one_end_button.configure(state=ctk.NORMAL)
+            self.one_v_one_player2_miss_one_v_one_end_button.configure(state=ctk.NORMAL)
+
+        else : # Ha a 2-es jatekos volt utoljara
+            self.one_v_one_player1_hit_button.configure(state=ctk.DISABLED)
+            self.one_v_one_player1_miss_button.configure(state=ctk.DISABLED)
+            self.one_v_one_player2_hit_one_v_one_end_button.configure(state=ctk.NORMAL)
+            self.one_v_one_player2_miss_one_v_one_end_button.configure(state=ctk.NORMAL)
+
+        # Valtozok beallitasa
+        self.one_v_one_overtime_var = False
+        self.one_v_one_player1_cups_left = 3
+        self.one_v_one_player2_cups_left = 3
+
+        # Labelek frissitese
+        self.one_v_one_player2_score_label.configure(text=self.one_v_one_player2_cups_left)
+        self.one_v_one_player1_score_label.configure(text=self.one_v_one_player1_cups_left)
         
 
 
