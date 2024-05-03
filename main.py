@@ -484,7 +484,6 @@ class TrackerWindow(ctk.CTk):
 
                 # 3v3 hosszabbitas
                 else:
-                    print('jo')
                     self.one_v_one_player1_total_throws += 1
                     self.one_v_one_player1_total_hits += 1
                     self.one_v_one_player2_cups_left -= 1
