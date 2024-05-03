@@ -373,6 +373,11 @@ class TrackerWindow(ctk.CTk):
         self.one_v_one_player2_hit_one_v_one_end_button.pack(side='left', pady=2, padx=10)
         self.one_v_one_player2_miss_one_v_one_end_button = ctk.CTkButton(self.one_v_one_player2_one_v_one_end_button_frame, text="Miss", command=lambda: self.one_v_one_miss(self.one_v_one_player2), fg_color="red", height=60, font=("Arial", 25))
         self.one_v_one_player2_miss_one_v_one_end_button.pack(side='left', pady=2, padx=10)
+
+        # Az elejen a player2 gombjait deaktivaljuk
+        if self.one_v_one_starter_throw_happened == False:
+            self.one_v_one_player2_hit_one_v_one_end_button.configure(state=ctk.DISABLED)
+            self.one_v_one_player2_miss_one_v_one_end_button.configure(state=ctk.DISABLED)
         
         # Player2 Total throw statisztika 
         self.one_v_one_player2_total_throws_stat_frame = ctk.CTkFrame(self.one_v_one_player2_frame)
