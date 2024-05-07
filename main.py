@@ -928,11 +928,9 @@ class TrackerWindow(ctk.CTk):
                 self.one_v_one_player2_hit_one_v_one_end_button.configure(state=ctk.DISABLED)
                 self.one_v_one_player2_miss_one_v_one_end_button.configure(state=ctk.DISABLED)
 
-                print(self.one_v_one_player1_first_throw, self.one_v_one_player1_second_throw)
                 # Dobasok resetelese
                 self.one_v_one_player1_first_throw = False
                 self.one_v_one_player1_second_throw = False
-                print(self.one_v_one_player1_first_throw, self.one_v_one_player1_second_throw)
             
         self.one_v_one_change_check_active_player() # Aktiv jatekos nevenek ellenorzese
 
