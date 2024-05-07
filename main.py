@@ -4,6 +4,7 @@ from tkinter import simpledialog
 from tkinter import messagebox
 from database import Database
 import sqlite3
+import datetime
 
 
 class MainWindow(ctk.CTk):
@@ -58,8 +59,7 @@ class PlayerWindow(ctk.CTk):
             self.iconbitmap('assets/beerpong.ico')
 
             # Kapcsolat létrehozása az adatbázissal
-            self.connection = sqlite3.connect('players.db')
-            self.cursor = self.connection.cursor()
+            self.database = Database()
 
             # Szülőablak
             self.parent = parent
@@ -85,8 +85,8 @@ class PlayerWindow(ctk.CTk):
 
 
         def show_players(self):
-            self.cursor.execute("SELECT * FROM players")
-            players = self.cursor.fetchall()
+            self.database.cursor.execute("SELECT * FROM players")
+            players = self.database.cursor.fetchall()
             for player in players:
                 self.player_listbox.insert(tk.END, player[1])
 
@@ -95,8 +95,8 @@ class PlayerWindow(ctk.CTk):
             player_name = ctk.CTkInputDialog(text="Name:", title="Add player")
             player_name = player_name.get_input()
             if player_name:
-                self.cursor.execute("INSERT INTO players (name) VALUES (?)", (player_name,))
-                self.connection.commit()
+                self.database.cursor.execute("INSERT INTO players (name) VALUES (?)", (player_name,))
+                self.database.connection.commit()
                 self.player_listbox.insert(ctk.END, player_name)
 
 
@@ -104,8 +104,8 @@ class PlayerWindow(ctk.CTk):
             selected_index = self.player_listbox.curselection()
             if selected_index:
                 player_name = self.player_listbox.get(selected_index)
-                self.cursor.execute("DELETE FROM players WHERE name=?", (player_name,))
-                self.connection.commit()
+                self.database.cursor.execute("DELETE FROM players WHERE name=?", (player_name,))
+                self.database.connection.commit()
                 self.player_listbox.delete(selected_index)
         
 
@@ -120,8 +120,7 @@ class TrackerWindow(ctk.CTk):
         self.iconbitmap('assets/beerpong.ico')
 
         # Kapcsolat létrehozása az adatbázissal
-        self.connection = sqlite3.connect('players.db')
-        self.cursor = self.connection.cursor()
+        self.database = Database()
 
         # Szülőablak
         self.parent = parent
@@ -272,7 +271,7 @@ class TrackerWindow(ctk.CTk):
 
 
     # 1v1 Jatekablak
-    def one_v_one_tracker_window(self, starting_player, other_player, p1thits=0, p2thits=0, p1tmiss=0, p2tmiss=0 ,p1tbot=0, p2tbot=0, p1dbot=0, p2dbot=0):
+    def one_v_one_tracker_window(self, starting_player, other_player, p1hag=0, p2hag=0, p1mag=0, p2mag=0 ,p1tag=0, p2tag=0, p1dag=0, p2dag=0):
 
         # Widgetek eltuntetese as ablak meretenek atallitasa
         self.geometry('690x420')
@@ -287,10 +286,10 @@ class TrackerWindow(ctk.CTk):
         self.one_v_one_player2_cups_left = 10
         self.one_v_one_player1_total_throws = 0
         self.one_v_one_player2_total_throws = 0
-        self.one_v_one_player1_total_hits = p1thits
-        self.one_v_one_player2_total_hits = p2thits
-        self.one_v_one_player1_total_miss = p1tmiss
-        self.one_v_one_player2_total_miss = p2tmiss
+        self.one_v_one_player1_total_hits = 0
+        self.one_v_one_player2_total_hits = 0
+        self.one_v_one_player1_total_miss = 0
+        self.one_v_one_player2_total_miss = 0
         self.one_v_one_starter_throw_happened = False # Kezdokor valtozo
         self.one_v_one_player1_doubles = 0
         self.one_v_one_player2_doubles = 0
@@ -298,16 +297,25 @@ class TrackerWindow(ctk.CTk):
         self.one_v_one_player2_throws_without_miss = 0 # Duplazashoz valtozo
         self.one_v_one_third_shot = False   # 3. dobas valtozo
         self.one_v_one_overtime_var = False
-        self.one_v_one_player1_throw_before_overtime = p1tbot # Overtime elotti dopbasokat overtimenal atrakjuk ebbe a valtozoba
-        self.one_v_one_player2_throw_before_overtime = p2tbot # Overtime elotti dopbasokat overtimenal atrakjuk ebbe a valtozoba
-        self.one_v_one_player1_double_before_overtime = p1dbot # Overtime elotti duplakat overtimenal atrakjuk ebbe a valtozoba
-        self.one_v_one_player2_double_before_overtime = p2dbot # Overtime elotti duplakat overtimenal atrakjuk ebbe a valtozoba
+        self.one_v_one_player1_throw_before_overtime = 0 # Overtime elotti dopbasokat overtimenal atrakjuk ebbe a valtozoba
+        self.one_v_one_player2_throw_before_overtime = 0 # Overtime elotti dopbasokat overtimenal atrakjuk ebbe a valtozoba
+        self.one_v_one_player1_double_before_overtime = 0 # Overtime elotti duplakat overtimenal atrakjuk ebbe a valtozoba
+        self.one_v_one_player2_double_before_overtime = 0 # Overtime elotti duplakat overtimenal atrakjuk ebbe a valtozoba
         self.one_v_one_overtime_started = False # Ha az overtime elkezdodott true-ra allitjuk majd
         self.one_v_one_player1_first_throw = False      # Ezek az overtimenal kellenek, hogy tudjuk hany dobasa van a jatekosnak, hogy visszaszalhasson
         self.one_v_one_player1_second_throw = False     # Ezek az overtimenal kellenek, hogy tudjuk hany dobasa van a jatekosnak, hogy visszaszalhasson
         self.one_v_one_player2_first_throw = False      # Ezek az overtimenal kellenek, hogy tudjuk hany dobasa van a jatekosnak, hogy visszaszalhasson
         self.one_v_one_player2_second_throw = False     # Ezek az overtimenal kellenek, hogy tudjuk hany dobasa van a jatekosnak, hogy visszaszalhasson
         self.one_v_one_overtime_first_throw = False    # Ha ket dobas van visszaszallni, megtortent-e az elso
+        self.one_v_one_player1_throw_after_games = p1tag    # Ha a user folytatja a jatekot, akkor ebben a valtozoban taroljuk az elozo meccsek statisztikajat
+        self.one_v_one_player2_throw_after_games = p2tag    # Ha a user folytatja a jatekot, akkor ebben a valtozoban taroljuk az elozo meccsek statisztikajat
+        self.one_v_one_player1_double_after_game = p1dag    # Ha a user folytatja a jatekot, akkor ebben a valtozoban taroljuk az elozo meccsek statisztikajat
+        self.one_v_one_player2_double_after_game = p2dag    # Ha a user folytatja a jatekot, akkor ebben a valtozoban taroljuk az elozo meccsek statisztikajat
+        self.one_v_one_player1_hits_after_games = p1hag     # Ha a user folytatja a jatekot, akkor ebben a valtozoban taroljuk az elozo meccsek statisztikajat
+        self.one_v_one_player2_hits_after_games = p2hag     # Ha a user folytatja a jatekot, akkor ebben a valtozoban taroljuk az elozo meccsek statisztikajat
+        self.one_v_one_player1_miss_after_games = p1mag     # Ha a user folytatja a jatekot, akkor ebben a valtozoban taroljuk az elozo meccsek statisztikajat
+        self.one_v_one_player2_miss_after_games = p2mag     # Ha a user folytatja a jatekot, akkor ebben a valtozoban taroljuk az elozo meccsek statisztikajat
+
 
 
 
@@ -350,7 +358,7 @@ class TrackerWindow(ctk.CTk):
         self.one_v_one_player1_total_throws_stat_frame.pack(pady=(20,0), fill="x")
         self.one_v_one_player1_total_throws_stat_label = ctk.CTkLabel(self.one_v_one_player1_total_throws_stat_frame, text="Total throws:", font=("Arial", 20))
         self.one_v_one_player1_total_throws_stat_label.pack(side='left', padx=10)
-        self.one_v_one_player1_total_throws_var_label = ctk.CTkLabel(self.one_v_one_player1_total_throws_stat_frame, text=self.one_v_one_player1_total_throws + self.one_v_one_player1_throw_before_overtime, font=("Arial", 20))
+        self.one_v_one_player1_total_throws_var_label = ctk.CTkLabel(self.one_v_one_player1_total_throws_stat_frame, text=self.one_v_one_player1_total_throws + self.one_v_one_player1_throw_before_overtime + self.one_v_one_player1_throw_after_games, font=("Arial", 20))
         self.one_v_one_player1_total_throws_var_label.pack(side='left', padx=10)
 
         # Player1 Total hits statisztika 
@@ -358,7 +366,7 @@ class TrackerWindow(ctk.CTk):
         self.one_v_one_player1_total_hits_stat_frame.pack(pady=0, fill="x")
         self.one_v_one_player1_total_hits_stat_label = ctk.CTkLabel(self.one_v_one_player1_total_hits_stat_frame, text="Total hits:", font=("Arial", 20))
         self.one_v_one_player1_total_hits_stat_label.pack(side='left', padx=10)
-        self.one_v_one_player1_total_hits_var_label = ctk.CTkLabel(self.one_v_one_player1_total_hits_stat_frame, text=self.one_v_one_player1_total_hits, font=("Arial", 20))
+        self.one_v_one_player1_total_hits_var_label = ctk.CTkLabel(self.one_v_one_player1_total_hits_stat_frame, text=self.one_v_one_player1_total_hits + self.one_v_one_player1_hits_after_games, font=("Arial", 20))
         self.one_v_one_player1_total_hits_var_label.pack(side='left', padx=10)
 
         # Player1 Total miss statisztika 
@@ -366,7 +374,7 @@ class TrackerWindow(ctk.CTk):
         self.one_v_one_player1_total_miss_stat_frame.pack(pady=0, fill="x")
         self.one_v_one_player1_total_miss_stat_label = ctk.CTkLabel(self.one_v_one_player1_total_miss_stat_frame, text="Total misses:", font=("Arial", 20))
         self.one_v_one_player1_total_miss_stat_label.pack(side='left', padx=10)
-        self.one_v_one_player1_total_miss_var_label = ctk.CTkLabel(self.one_v_one_player1_total_miss_stat_frame, text=self.one_v_one_player1_total_miss, font=("Arial", 20))
+        self.one_v_one_player1_total_miss_var_label = ctk.CTkLabel(self.one_v_one_player1_total_miss_stat_frame, text=self.one_v_one_player1_total_miss + self.one_v_one_player1_miss_after_games, font=("Arial", 20))
         self.one_v_one_player1_total_miss_var_label.pack(side='left', padx=10)
 
         # Player1 Total percentage statisztika 
@@ -374,7 +382,7 @@ class TrackerWindow(ctk.CTk):
         self.one_v_one_player1_total_percentage_stat_frame.pack(pady=0, fill="x")
         self.one_v_one_player1_total_percentage_stat_label = ctk.CTkLabel(self.one_v_one_player1_total_percentage_stat_frame, text="Total percentage:", font=("Arial", 20))
         self.one_v_one_player1_total_percentage_stat_label.pack(side='left', padx=10)
-        self.one_v_one_player1_total_percentage_var_label = ctk.CTkLabel(self.one_v_one_player1_total_percentage_stat_frame, text=f'{self.calculate_percentage(self.one_v_one_player1_total_hits, self.one_v_one_player1_total_throws + self.one_v_one_player1_throw_before_overtime)}%', font=("Arial", 20))
+        self.one_v_one_player1_total_percentage_var_label = ctk.CTkLabel(self.one_v_one_player1_total_percentage_stat_frame, text=f'{self.calculate_percentage(self.one_v_one_player1_total_hits + self.one_v_one_player1_hits_after_games, self.one_v_one_player1_total_throws + self.one_v_one_player1_throw_before_overtime + self.one_v_one_player1_throw_after_games)}%', font=("Arial", 20))
         self.one_v_one_player1_total_percentage_var_label.pack(side='left', padx=10)
 
         # Player2 nev es fentlevo poharak
@@ -401,7 +409,7 @@ class TrackerWindow(ctk.CTk):
         self.one_v_one_player2_total_throws_stat_frame.pack(pady=(20,0), fill="x")
         self.one_v_one_player2_total_throws_stat_label = ctk.CTkLabel(self.one_v_one_player2_total_throws_stat_frame, text="Total throws:", font=("Arial", 20))
         self.one_v_one_player2_total_throws_stat_label.pack(side='left', padx=10)
-        self.one_v_one_player2_total_throws_var_label = ctk.CTkLabel(self.one_v_one_player2_total_throws_stat_frame, text=self.one_v_one_player2_total_throws + self.one_v_one_player2_throw_before_overtime, font=("Arial", 20))
+        self.one_v_one_player2_total_throws_var_label = ctk.CTkLabel(self.one_v_one_player2_total_throws_stat_frame, text=self.one_v_one_player2_total_throws + self.one_v_one_player2_throw_before_overtime + self.one_v_one_player2_throw_after_games, font=("Arial", 20))
         self.one_v_one_player2_total_throws_var_label.pack(side='left', padx=10)
 
         # Player2 Total hits statisztika 
@@ -409,7 +417,7 @@ class TrackerWindow(ctk.CTk):
         self.one_v_one_player2_total_hits_stat_frame.pack(pady=0, fill="x")
         self.one_v_one_player2_total_hits_stat_label = ctk.CTkLabel(self.one_v_one_player2_total_hits_stat_frame, text="Total hits:", font=("Arial", 20))
         self.one_v_one_player2_total_hits_stat_label.pack(side='left', padx=10)
-        self.one_v_one_player2_total_hits_var_label = ctk.CTkLabel(self.one_v_one_player2_total_hits_stat_frame, text=self.one_v_one_player2_total_hits, font=("Arial", 20))
+        self.one_v_one_player2_total_hits_var_label = ctk.CTkLabel(self.one_v_one_player2_total_hits_stat_frame, text=self.one_v_one_player2_total_hits + self.one_v_one_player2_hits_after_games, font=("Arial", 20))
         self.one_v_one_player2_total_hits_var_label.pack(side='left', padx=10)
 
         # Player2 Total miss statisztika 
@@ -417,7 +425,7 @@ class TrackerWindow(ctk.CTk):
         self.one_v_one_player2_total_miss_stat_frame.pack(pady=0, fill="x")
         self.one_v_one_player2_total_miss_stat_label = ctk.CTkLabel(self.one_v_one_player2_total_miss_stat_frame, text="Total misses:", font=("Arial", 20))
         self.one_v_one_player2_total_miss_stat_label.pack(side='left', padx=10)
-        self.one_v_one_player2_total_miss_var_label = ctk.CTkLabel(self.one_v_one_player2_total_miss_stat_frame, text=self.one_v_one_player2_total_miss, font=("Arial", 20))
+        self.one_v_one_player2_total_miss_var_label = ctk.CTkLabel(self.one_v_one_player2_total_miss_stat_frame, text=self.one_v_one_player2_total_miss + self.one_v_one_player2_miss_after_games, font=("Arial", 20))
         self.one_v_one_player2_total_miss_var_label.pack(side='left', padx=10)
 
         # Player2 Total percentage statisztika 
@@ -425,7 +433,7 @@ class TrackerWindow(ctk.CTk):
         self.one_v_one_player2_total_percentage_stat_frame.pack(pady=0, fill="x")
         self.one_v_one_player2_total_percentage_stat_label = ctk.CTkLabel(self.one_v_one_player2_total_percentage_stat_frame, text="Total percentage:", font=("Arial", 20))
         self.one_v_one_player2_total_percentage_stat_label.pack(side='left', padx=10)
-        self.one_v_one_player2_total_percentage_var_label = ctk.CTkLabel(self.one_v_one_player2_total_percentage_stat_frame, text=f'{self.calculate_percentage(self.one_v_one_player2_total_hits, self.one_v_one_player2_total_throws + self.one_v_one_player2_throw_before_overtime)}%', font=("Arial", 20))
+        self.one_v_one_player2_total_percentage_var_label = ctk.CTkLabel(self.one_v_one_player2_total_percentage_stat_frame, text=f'{self.calculate_percentage(self.one_v_one_player2_total_hits + self.one_v_one_player2_hits_after_games, self.one_v_one_player2_total_throws + self.one_v_one_player2_throw_before_overtime + self.one_v_one_player2_throw_after_games)}%', font=("Arial", 20))
         self.one_v_one_player2_total_percentage_var_label.pack(side='left', padx=10)
 
 
@@ -447,9 +455,9 @@ class TrackerWindow(ctk.CTk):
                         self.one_v_one_player1_second_throw = True
                     
                     # Labelek valtoztatasa
-                    self.one_v_one_player1_total_throws_var_label.configure(text=self.one_v_one_player1_total_throws + self.one_v_one_player1_throw_before_overtime)
-                    self.one_v_one_player1_total_hits_var_label.configure(text=self.one_v_one_player1_total_hits)
-                    self.one_v_one_player1_total_percentage_var_label.configure(text=f'{self.calculate_percentage(self.one_v_one_player1_total_hits, self.one_v_one_player1_total_throws + self.one_v_one_player1_throw_before_overtime)}%')
+                    self.one_v_one_player1_total_throws_var_label.configure(text=self.one_v_one_player1_total_throws + self.one_v_one_player1_throw_before_overtime + self.one_v_one_player1_throw_after_games)
+                    self.one_v_one_player1_total_hits_var_label.configure(text=self.one_v_one_player1_total_hits + self.one_v_one_player1_hits_after_games)
+                    self.one_v_one_player1_total_percentage_var_label.configure(text=f'{self.calculate_percentage(self.one_v_one_player1_total_hits, self.one_v_one_player1_total_throws + self.one_v_one_player1_throw_before_overtime + self.one_v_one_player1_throw_after_games)}%')
                     self.one_v_one_player2_score_label.configure(text=self.one_v_one_player2_cups_left)
 
                     # Ha nem a 3. dobas
@@ -489,9 +497,9 @@ class TrackerWindow(ctk.CTk):
                     self.one_v_one_player2_cups_left -= 1
 
                     # Labelek valtoztatasa
-                    self.one_v_one_player1_total_throws_var_label.configure(text=self.one_v_one_player1_total_throws + self.one_v_one_player1_throw_before_overtime)
-                    self.one_v_one_player1_total_hits_var_label.configure(text=self.one_v_one_player1_total_hits)
-                    self.one_v_one_player1_total_percentage_var_label.configure(text=f'{self.calculate_percentage(self.one_v_one_player1_total_hits, self.one_v_one_player1_total_throws + self.one_v_one_player1_throw_before_overtime)}%')
+                    self.one_v_one_player1_total_throws_var_label.configure(text=self.one_v_one_player1_total_throws + self.one_v_one_player1_throw_before_overtime + self.one_v_one_player1_throw_after_games)
+                    self.one_v_one_player1_total_hits_var_label.configure(text=self.one_v_one_player1_total_hits + self.one_v_one_player1_hits_after_games)
+                    self.one_v_one_player1_total_percentage_var_label.configure(text=f'{self.calculate_percentage(self.one_v_one_player1_total_hits, self.one_v_one_player1_total_throws + self.one_v_one_player1_throw_before_overtime + self.one_v_one_player1_throw_after_games)}%')
                     self.one_v_one_player2_score_label.configure(text=self.one_v_one_player2_cups_left)
 
                     # Ha sikerult ledobni az osszes hatrelevo poharat elinditjuk az overtimeot
@@ -511,9 +519,9 @@ class TrackerWindow(ctk.CTk):
                         self.one_v_one_player1_second_throw = True
                     
                     # Labelek valtoztatasa
-                    self.one_v_one_player1_total_throws_var_label.configure(text=self.one_v_one_player1_total_throws + self.one_v_one_player1_throw_before_overtime)
-                    self.one_v_one_player1_total_hits_var_label.configure(text=self.one_v_one_player1_total_hits)
-                    self.one_v_one_player1_total_percentage_var_label.configure(text=f'{self.calculate_percentage(self.one_v_one_player1_total_hits, self.one_v_one_player1_total_throws + self.one_v_one_player1_throw_before_overtime)}%')
+                    self.one_v_one_player1_total_throws_var_label.configure(text=self.one_v_one_player1_total_throws + self.one_v_one_player1_throw_before_overtime + self.one_v_one_player1_throw_after_games)
+                    self.one_v_one_player1_total_hits_var_label.configure(text=self.one_v_one_player1_total_hits + self.one_v_one_player1_hits_after_games)
+                    self.one_v_one_player1_total_percentage_var_label.configure(text=f'{self.calculate_percentage(self.one_v_one_player1_total_hits, self.one_v_one_player1_total_throws + self.one_v_one_player1_throw_before_overtime + self.one_v_one_player1_throw_after_games)}%')
                     self.one_v_one_player2_score_label.configure(text=self.one_v_one_player2_cups_left)
 
                     # Ha nem a 3. dobas
@@ -562,9 +570,9 @@ class TrackerWindow(ctk.CTk):
                         self.one_v_one_player2_second_throw = True
 
                     # Labelek megvaltoztatasa
-                    self.one_v_one_player2_total_throws_var_label.configure(text=self.one_v_one_player2_total_throws + self.one_v_one_player2_throw_before_overtime)
-                    self.one_v_one_player2_total_hits_var_label.configure(text=self.one_v_one_player2_total_hits)
-                    self.one_v_one_player2_total_percentage_var_label.configure(text=f'{self.calculate_percentage(self.one_v_one_player2_total_hits, self.one_v_one_player2_total_throws + self.one_v_one_player2_throw_before_overtime)}%')
+                    self.one_v_one_player2_total_throws_var_label.configure(text=self.one_v_one_player2_total_throws + self.one_v_one_player2_throw_before_overtime + self.one_v_one_player2_throw_after_games)
+                    self.one_v_one_player2_total_hits_var_label.configure(text=self.one_v_one_player2_total_hits + self.one_v_one_player2_hits_after_games)
+                    self.one_v_one_player2_total_percentage_var_label.configure(text=f'{self.calculate_percentage(self.one_v_one_player2_total_hits, self.one_v_one_player2_total_throws + self.one_v_one_player2_throw_before_overtime + self.one_v_one_player2_throw_after_games)}%')
                     self.one_v_one_player1_score_label.configure(text=self.one_v_one_player1_cups_left)
 
                     # Ha nem a 3. dobas
@@ -599,9 +607,9 @@ class TrackerWindow(ctk.CTk):
                     self.one_v_one_player1_cups_left -= 1
 
                     # Labelek valtoztatasa
-                    self.one_v_one_player2_total_throws_var_label.configure(text=self.one_v_one_player2_total_throws + self.one_v_one_player2_throw_before_overtime)
-                    self.one_v_one_player2_total_hits_var_label.configure(text=self.one_v_one_player2_total_hits)
-                    self.one_v_one_player2_total_percentage_var_label.configure(text=f'{self.calculate_percentage(self.one_v_one_player2_total_hits, self.one_v_one_player2_total_throws + self.one_v_one_player2_throw_before_overtime)}%')
+                    self.one_v_one_player2_total_throws_var_label.configure(text=self.one_v_one_player2_total_throws + self.one_v_one_player2_throw_before_overtime + self.one_v_one_player2_throw_after_games)
+                    self.one_v_one_player2_total_hits_var_label.configure(text=self.one_v_one_player2_total_hits + self.one_v_one_player2_hits_after_games)
+                    self.one_v_one_player2_total_percentage_var_label.configure(text=f'{self.calculate_percentage(self.one_v_one_player2_total_hits, self.one_v_one_player2_total_throws + self.one_v_one_player2_throw_before_overtime + self.one_v_one_player2_throw_after_games)}%')
                     self.one_v_one_player1_score_label.configure(text=self.one_v_one_player1_cups_left)
                     
                     # Ha sikerult ledobni az osszes hatrelevo poharat elinditjuk az overtimeot
@@ -621,9 +629,9 @@ class TrackerWindow(ctk.CTk):
                         self.one_v_one_player2_second_throw = True
 
                     # Labelek megvaltoztatasa
-                    self.one_v_one_player2_total_throws_var_label.configure(text=self.one_v_one_player2_total_throws + self.one_v_one_player2_throw_before_overtime)
-                    self.one_v_one_player2_total_hits_var_label.configure(text=self.one_v_one_player2_total_hits)
-                    self.one_v_one_player2_total_percentage_var_label.configure(text=f'{self.calculate_percentage(self.one_v_one_player2_total_hits, self.one_v_one_player2_total_throws + self.one_v_one_player2_throw_before_overtime)}%')
+                    self.one_v_one_player2_total_throws_var_label.configure(text=self.one_v_one_player2_total_throws + self.one_v_one_player2_throw_before_overtime + self.one_v_one_player2_throw_after_games)
+                    self.one_v_one_player2_total_hits_var_label.configure(text=self.one_v_one_player2_total_hits + self.one_v_one_player2_hits_after_games)
+                    self.one_v_one_player2_total_percentage_var_label.configure(text=f'{self.calculate_percentage(self.one_v_one_player2_total_hits, self.one_v_one_player2_total_throws + self.one_v_one_player2_throw_before_overtime + self.one_v_one_player2_throw_after_games)}%')
                     self.one_v_one_player1_score_label.configure(text=self.one_v_one_player1_cups_left)
 
                     # Ha nem a 3. dobas
@@ -669,9 +677,9 @@ class TrackerWindow(ctk.CTk):
                         self.one_v_one_player1_second_throw = True
                     
                     # Labelek valtoztatasa
-                    self.one_v_one_player1_total_throws_var_label.configure(text=self.one_v_one_player1_total_throws + self.one_v_one_player1_throw_before_overtime)
-                    self.one_v_one_player1_total_miss_var_label.configure(text=self.one_v_one_player1_total_miss)
-                    self.one_v_one_player1_total_percentage_var_label.configure(text=f'{self.calculate_percentage(self.one_v_one_player1_total_hits, self.one_v_one_player1_total_throws + self.one_v_one_player1_throw_before_overtime)}%')
+                    self.one_v_one_player1_total_throws_var_label.configure(text=self.one_v_one_player1_total_throws + self.one_v_one_player1_throw_before_overtime + self.one_v_one_player1_throw_after_games)
+                    self.one_v_one_player1_total_hits_var_label.configure(text=self.one_v_one_player1_total_hits + self.one_v_one_player1_hits_after_games)
+                    self.one_v_one_player1_total_percentage_var_label.configure(text=f'{self.calculate_percentage(self.one_v_one_player1_total_hits, self.one_v_one_player1_total_throws + self.one_v_one_player1_throw_before_overtime + self.one_v_one_player1_throw_after_games)}%')
 
                     # Egyhuzamban torteno hitek 0-zasa  es 3. dobas valtozojanak visszaallitasa
                     self.one_v_one_player1_throws_without_miss = 0
@@ -716,9 +724,9 @@ class TrackerWindow(ctk.CTk):
                         self.one_v_one_player1_second_throw = True
                     
                     # Labelek valtoztatasa
-                    self.one_v_one_player1_total_throws_var_label.configure(text=self.one_v_one_player1_total_throws + self.one_v_one_player1_throw_before_overtime)
-                    self.one_v_one_player1_total_miss_var_label.configure(text=self.one_v_one_player1_total_miss)
-                    self.one_v_one_player1_total_percentage_var_label.configure(text=f'{self.calculate_percentage(self.one_v_one_player1_total_hits, self.one_v_one_player1_total_throws + self.one_v_one_player1_throw_before_overtime)}%')
+                    self.one_v_one_player1_total_throws_var_label.configure(text=self.one_v_one_player1_total_throws + self.one_v_one_player1_throw_before_overtime + self.one_v_one_player1_throw_after_games)
+                    self.one_v_one_player1_total_hits_var_label.configure(text=self.one_v_one_player1_total_hits + self.one_v_one_player1_hits_after_games)
+                    self.one_v_one_player1_total_percentage_var_label.configure(text=f'{self.calculate_percentage(self.one_v_one_player1_total_hits, self.one_v_one_player1_total_throws + self.one_v_one_player1_throw_before_overtime + self.one_v_one_player1_throw_after_games)}%')
 
                     # Egyhuzamban torteno hitek 0-zasa  es 3. dobas valtozojanak visszaallitasa
                     self.one_v_one_player1_throws_without_miss = 0
@@ -747,9 +755,9 @@ class TrackerWindow(ctk.CTk):
                         self.one_v_one_player2_second_throw = True
 
                     # Labelek megvaltoztatasa
-                    self.one_v_one_player2_total_throws_var_label.configure(text=self.one_v_one_player2_total_throws + self.one_v_one_player2_throw_before_overtime)
-                    self.one_v_one_player2_total_miss_var_label.configure(text=self.one_v_one_player2_total_miss)
-                    self.one_v_one_player2_total_percentage_var_label.configure(text=f'{self.calculate_percentage(self.one_v_one_player2_total_hits, self.one_v_one_player2_total_throws +  self.one_v_one_player2_throw_before_overtime)}%')
+                    self.one_v_one_player2_total_throws_var_label.configure(text=self.one_v_one_player2_total_throws + self.one_v_one_player2_throw_before_overtime + self.one_v_one_player2_throw_after_games)
+                    self.one_v_one_player2_total_hits_var_label.configure(text=self.one_v_one_player2_total_hits + self.one_v_one_player2_hits_after_games)
+                    self.one_v_one_player2_total_percentage_var_label.configure(text=f'{self.calculate_percentage(self.one_v_one_player2_total_hits, self.one_v_one_player2_total_throws + self.one_v_one_player2_throw_before_overtime + self.one_v_one_player2_throw_after_games)}%')
 
                     # Egyhuzamban torteno hitek 0-zasa es 3. dobas valtozojanak visszaallitasa
                     self.one_v_one_player2_throws_without_miss = 0
@@ -790,9 +798,9 @@ class TrackerWindow(ctk.CTk):
                         self.one_v_one_player2_second_throw = True
 
                     # Labelek megvaltoztatasa
-                    self.one_v_one_player2_total_throws_var_label.configure(text=self.one_v_one_player2_total_throws + self.one_v_one_player2_throw_before_overtime)
-                    self.one_v_one_player2_total_miss_var_label.configure(text=self.one_v_one_player2_total_miss)
-                    self.one_v_one_player2_total_percentage_var_label.configure(text=f'{self.calculate_percentage(self.one_v_one_player2_total_hits, self.one_v_one_player2_total_throws +  self.one_v_one_player2_throw_before_overtime)}%')
+                    self.one_v_one_player2_total_throws_var_label.configure(text=self.one_v_one_player2_total_throws + self.one_v_one_player2_throw_before_overtime + self.one_v_one_player2_throw_after_games)
+                    self.one_v_one_player2_total_hits_var_label.configure(text=self.one_v_one_player2_total_hits + self.one_v_one_player2_hits_after_games)
+                    self.one_v_one_player2_total_percentage_var_label.configure(text=f'{self.calculate_percentage(self.one_v_one_player2_total_hits, self.one_v_one_player2_total_throws + self.one_v_one_player2_throw_before_overtime + self.one_v_one_player2_throw_after_games)}%')
 
                     # Egyhuzamban torteno hitek 0-zasa es 3. dobas valtozojanak visszaallitasa
                     self.one_v_one_player2_throws_without_miss = 0
@@ -827,6 +835,14 @@ class TrackerWindow(ctk.CTk):
                 self.one_v_one_top_frame.pack_forget()
                 self.one_v_one_player1_frame.pack_forget()
                 self.one_v_one_player2_frame.pack_forget()
+
+                # Statisztika elmentese adatbazisba
+                # Player1 statisztikaja
+                p1_total_throws = self.one_v_one_player1_throw_before_overtime + self.one_v_one_player1_total_throws + self.one_v_one_player1_throw_after_games
+                print(p1_total_throws)
+                #self.database.add_match(self.one_v_one_player1, '1v1',)
+
+
 
                 # Uj ablak generalasa a gyoztes mujtatasahoz
                 self.geometry('500x200')
@@ -966,27 +982,27 @@ class TrackerWindow(ctk.CTk):
         # A jatek logikajahoz szukseges valtozokat athelyezzuk csak tarolasra hasznalt valtozoba (Fontos hogy majd keresztbe adjuk az adatokat, mert masik jatekos lesz a kezdojatekos)
         player1 = self.one_v_one_player1
         player2 = self.one_v_one_player2
-        player1_hits = self.one_v_one_player1_total_hits
-        player2_hits = self.one_v_one_player2_total_hits
-        player1_miss = self.one_v_one_player1_total_miss
-        player2_miss = self.one_v_one_player2_total_miss
-        player1_total_throw = self.one_v_one_player1_total_throws + self.one_v_one_player1_throw_before_overtime
-        player2_total_throw = self.one_v_one_player2_total_throws + self.one_v_one_player2_throw_before_overtime
-        player1_doubles = self.one_v_one_player1_doubles + self.one_v_one_player1_double_before_overtime
-        player2_doubles = self.one_v_one_player2_doubles + self.one_v_one_player2_double_before_overtime
+        player1_hits = self.one_v_one_player1_total_hits + self.one_v_one_player1_hits_after_games
+        player2_hits = self.one_v_one_player2_total_hits + self.one_v_one_player2_hits_after_games
+        player1_miss = self.one_v_one_player1_total_miss + self.one_v_one_player1_miss_after_games
+        player2_miss = self.one_v_one_player2_total_miss + self.one_v_one_player2_miss_after_games
+        player1_total_throw = self.one_v_one_player1_total_throws + self.one_v_one_player1_throw_before_overtime + self.one_v_one_player1_throw_after_games
+        player2_total_throw = self.one_v_one_player2_total_throws + self.one_v_one_player2_throw_before_overtime + self.one_v_one_player2_throw_after_games
+        player1_doubles = self.one_v_one_player1_doubles + self.one_v_one_player1_double_before_overtime + self.one_v_one_player1_double_after_game
+        player2_doubles = self.one_v_one_player2_doubles + self.one_v_one_player2_double_before_overtime + self.one_v_one_player2_double_after_game
 
         # Ujrageneraljuk a tracker ablakot (Fontos, hogy az adatokat keresztbe adjuk at, aki itt p1 volt, az uj jatek p2 lesz! Ez a kezdojatekos csereje miatt fontos!)
         self.one_v_one_tracker_window(
             starting_player=player2,
             other_player=player1,
-            p1thits=player2_hits,
-            p2thits=player1_hits,
-            p1tmiss=player2_miss,
-            p2tmiss=player1_miss,
-            p1tbot=player2_total_throw,
-            p2tbot=player1_total_throw,
-            p1dbot=player2_doubles,
-            p2dbot=player1_doubles
+            p1hag=player2_hits,
+            p2hag=player1_hits,
+            p1mag=player2_miss,
+            p2mag=player1_miss,
+            p1tag=player2_total_throw,
+            p2tag=player1_total_throw,
+            p1dag=player2_doubles,
+            p2dag=player1_doubles
             )
 
 
@@ -1017,8 +1033,8 @@ class TrackerWindow(ctk.CTk):
 
     # Jatekosok betoltese a comboboxokba
     def load_players(self):
-        self.cursor.execute("SELECT name FROM players")
-        players = self.cursor.fetchall()
+        self.database.cursor.execute("SELECT name FROM players")
+        players = self.database.cursor.fetchall()
         players_list = []
         for player in players:
             players_list.append(player[0])
