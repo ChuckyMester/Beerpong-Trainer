@@ -13,6 +13,8 @@ class MainWindow(ctk.CTk):
         super().__init__()
         self.title('Main Menu')
         self.geometry('200x200')
+        # Icon used from: https://www.flaticon.com
+        self.iconbitmap('assets/beerpong.ico')
 
         # Adatbazis object meghivasa
         self.database = Database()
@@ -52,6 +54,8 @@ class PlayerWindow(ctk.CTk):
             super().__init__()
             self.title('Player Management')
             self.geometry('500x500')
+            # Icon used from: https://www.flaticon.com
+            self.iconbitmap('assets/beerpong.ico')
 
             # Kapcsolat létrehozása az adatbázissal
             self.connection = sqlite3.connect('players.db')
@@ -112,6 +116,8 @@ class TrackerWindow(ctk.CTk):
         super().__init__()
         self.title('Tracker')
         self.geometry('500x200')
+        # Icon used from: https://www.flaticon.com
+        self.iconbitmap('assets/beerpong.ico')
 
         # Kapcsolat létrehozása az adatbázissal
         self.connection = sqlite3.connect('players.db')
