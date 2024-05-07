@@ -918,6 +918,7 @@ class TrackerWindow(ctk.CTk):
                 # Dobasok resetelese
                 self.one_v_one_player2_first_throw = False
                 self.one_v_one_player2_second_throw = False
+                self.one_v_one_player2_throws_without_miss = 0
 
 
             case self.one_v_one_player2:
@@ -930,6 +931,7 @@ class TrackerWindow(ctk.CTk):
                 # Dobasok resetelese
                 self.one_v_one_player1_first_throw = False
                 self.one_v_one_player1_second_throw = False
+                self.one_v_one_player1_throws_without_miss = 0
             
         self.one_v_one_change_check_active_player() # Aktiv jatekos nevenek ellenorzese
 
