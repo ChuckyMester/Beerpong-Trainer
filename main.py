@@ -272,7 +272,7 @@ class TrackerWindow(ctk.CTk):
 
 
     # 1v1 Jatekablak
-    def one_v_one_tracker_window(self, starting_player, other_player):
+    def one_v_one_tracker_window(self, starting_player, other_player, p1thits=0, p2thits=0, p1tmiss=0, p2tmiss=0 ,p1tbot=0, p2tbot=0, p1dbot=0, p2dbot=0):
 
         # Widgetek eltuntetese as ablak meretenek atallitasa
         self.geometry('690x420')
@@ -287,10 +287,10 @@ class TrackerWindow(ctk.CTk):
         self.one_v_one_player2_cups_left = 10
         self.one_v_one_player1_total_throws = 0
         self.one_v_one_player2_total_throws = 0
-        self.one_v_one_player1_total_hits = 0
-        self.one_v_one_player2_total_hits = 0
-        self.one_v_one_player1_total_miss = 0
-        self.one_v_one_player2_total_miss = 0
+        self.one_v_one_player1_total_hits = p1thits
+        self.one_v_one_player2_total_hits = p2thits
+        self.one_v_one_player1_total_miss = p1tmiss
+        self.one_v_one_player2_total_miss = p2tmiss
         self.one_v_one_starter_throw_happened = False # Kezdokor valtozo
         self.one_v_one_player1_doubles = 0
         self.one_v_one_player2_doubles = 0
@@ -298,10 +298,10 @@ class TrackerWindow(ctk.CTk):
         self.one_v_one_player2_throws_without_miss = 0 # Duplazashoz valtozo
         self.one_v_one_third_shot = False   # 3. dobas valtozo
         self.one_v_one_overtime_var = False
-        self.one_v_one_player1_throw_before_overtime = 0 # Overtime elotti dopbasokat overtimenal atrakjuk ebbe a valtozoba
-        self.one_v_one_player2_throw_before_overtime = 0 # Overtime elotti dopbasokat overtimenal atrakjuk ebbe a valtozoba
-        self.one_v_one_player1_double_before_overtime = 0 # Overtime elotti duplakat overtimenal atrakjuk ebbe a valtozoba
-        self.one_v_one_player2_double_before_overtime = 0 # Overtime elotti duplakat overtimenal atrakjuk ebbe a valtozoba
+        self.one_v_one_player1_throw_before_overtime = p1tbot # Overtime elotti dopbasokat overtimenal atrakjuk ebbe a valtozoba
+        self.one_v_one_player2_throw_before_overtime = p2tbot # Overtime elotti dopbasokat overtimenal atrakjuk ebbe a valtozoba
+        self.one_v_one_player1_double_before_overtime = p1dbot # Overtime elotti duplakat overtimenal atrakjuk ebbe a valtozoba
+        self.one_v_one_player2_double_before_overtime = p2dbot # Overtime elotti duplakat overtimenal atrakjuk ebbe a valtozoba
         self.one_v_one_overtime_started = False # Ha az overtime elkezdodott true-ra allitjuk majd
         self.one_v_one_player1_first_throw = False      # Ezek az overtimenal kellenek, hogy tudjuk hany dobasa van a jatekosnak, hogy visszaszalhasson
         self.one_v_one_player1_second_throw = False     # Ezek az overtimenal kellenek, hogy tudjuk hany dobasa van a jatekosnak, hogy visszaszalhasson
@@ -374,7 +374,7 @@ class TrackerWindow(ctk.CTk):
         self.one_v_one_player1_total_percentage_stat_frame.pack(pady=0, fill="x")
         self.one_v_one_player1_total_percentage_stat_label = ctk.CTkLabel(self.one_v_one_player1_total_percentage_stat_frame, text="Total percentage:", font=("Arial", 20))
         self.one_v_one_player1_total_percentage_stat_label.pack(side='left', padx=10)
-        self.one_v_one_player1_total_percentage_var_label = ctk.CTkLabel(self.one_v_one_player1_total_percentage_stat_frame, text=f'{self.calculate_percentage(self.one_v_one_player1_total_hits, self.one_v_one_player1_total_throws)}%', font=("Arial", 20))
+        self.one_v_one_player1_total_percentage_var_label = ctk.CTkLabel(self.one_v_one_player1_total_percentage_stat_frame, text=f'{self.calculate_percentage(self.one_v_one_player1_total_hits, self.one_v_one_player1_total_throws + self.one_v_one_player1_throw_before_overtime)}%', font=("Arial", 20))
         self.one_v_one_player1_total_percentage_var_label.pack(side='left', padx=10)
 
         # Player2 nev es fentlevo poharak
@@ -425,7 +425,7 @@ class TrackerWindow(ctk.CTk):
         self.one_v_one_player2_total_percentage_stat_frame.pack(pady=0, fill="x")
         self.one_v_one_player2_total_percentage_stat_label = ctk.CTkLabel(self.one_v_one_player2_total_percentage_stat_frame, text="Total percentage:", font=("Arial", 20))
         self.one_v_one_player2_total_percentage_stat_label.pack(side='left', padx=10)
-        self.one_v_one_player2_total_percentage_var_label = ctk.CTkLabel(self.one_v_one_player2_total_percentage_stat_frame, text=f'{self.calculate_percentage(self.one_v_one_player2_total_hits, self.one_v_one_player2_total_throws)}%', font=("Arial", 20))
+        self.one_v_one_player2_total_percentage_var_label = ctk.CTkLabel(self.one_v_one_player2_total_percentage_stat_frame, text=f'{self.calculate_percentage(self.one_v_one_player2_total_hits, self.one_v_one_player2_total_throws + self.one_v_one_player2_throw_before_overtime)}%', font=("Arial", 20))
         self.one_v_one_player2_total_percentage_var_label.pack(side='left', padx=10)
 
 
@@ -841,7 +841,7 @@ class TrackerWindow(ctk.CTk):
                 new_game_one_v_one_end_button = ctk.CTkButton(self.one_v_one_end_button_frame, text="New Game", command=self.one_v_one_new_game, height=50)
                 new_game_one_v_one_end_button.pack(side="left", padx=10)
 
-                continue_one_v_one_end_button = ctk.CTkButton(self.one_v_one_end_button_frame, text="Continue", command=lambda: print('k'), height=50)
+                continue_one_v_one_end_button = ctk.CTkButton(self.one_v_one_end_button_frame, text="Continue", command=self.one_v_one_continue_game, height=50)
                 continue_one_v_one_end_button.pack(side="left", padx=10)
 
 
@@ -905,7 +905,6 @@ class TrackerWindow(ctk.CTk):
         self.one_v_one_change_check_active_player() # Aktiv jatekos nevenek ellenorzese
         
 
-
     # Gomb aktivalasa az aktiv jatekosnak es deaktivalas a masiknak valami a soron levo jatekos felirat updatelese
     def one_v_one_deactivate_button(self, player):
         match player:
@@ -953,7 +952,42 @@ class TrackerWindow(ctk.CTk):
         # Ujra meghivtjuk a tracker window methodot
         self.one_v_one_tracker_window(self.one_v_one_player2, self.one_v_one_player1)
 
-        
+
+    # Ha 1v1-nel a continue gamet valasztja, a statisztika megmarad, nem 0-zuk
+    def one_v_one_continue_game(self):
+
+        # Jelenlegi widgeteket eltuntetjuk
+        self.one_v_one_winner_label.pack_forget()
+        self.one_v_one_end_button_frame.pack_forget()
+
+        # Valtozok beallitasa
+        # A jatek logikajahoz szukseges valtozokat athelyezzuk csak tarolasra hasznalt valtozoba (Fontos hogy majd keresztbe adjuk az adatokat, mert masik jatekos lesz a kezdojatekos)
+        player1 = self.one_v_one_player1
+        player2 = self.one_v_one_player2
+        player1_hits = self.one_v_one_player1_total_hits
+        player2_hits = self.one_v_one_player2_total_hits
+        player1_miss = self.one_v_one_player1_total_miss
+        player2_miss = self.one_v_one_player2_total_miss
+        player1_total_throw = self.one_v_one_player1_total_throws + self.one_v_one_player1_throw_before_overtime
+        player2_total_throw = self.one_v_one_player2_total_throws + self.one_v_one_player2_throw_before_overtime
+        player1_doubles = self.one_v_one_player1_doubles + self.one_v_one_player1_double_before_overtime
+        player2_doubles = self.one_v_one_player2_doubles + self.one_v_one_player2_double_before_overtime
+
+        # Ujrageneraljuk a tracker ablakot (Fontos, hogy az adatokat keresztbe adjuk at, aki itt p1 volt, az uj jatek p2 lesz! Ez a kezdojatekos csereje miatt fontos!)
+        self.one_v_one_tracker_window(
+            starting_player=player2,
+            other_player=player1,
+            p1thits=player2_hits,
+            p2thits=player1_hits,
+            p1tmiss=player2_miss,
+            p2tmiss=player1_miss,
+            p1tbot=player2_total_throw,
+            p2tbot=player1_total_throw,
+            p1dbot=player2_doubles,
+            p2dbot=player1_doubles
+            )
+
+
             
 
     # 2v2 Jatekablak
