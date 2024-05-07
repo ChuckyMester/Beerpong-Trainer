@@ -301,6 +301,7 @@ class TrackerWindow(ctk.CTk):
         self.one_v_one_player1_second_throw = False     # Ezek az overtimenal kellenek, hogy tudjuk hany dobasa van a jatekosnak, hogy visszaszalhasson
         self.one_v_one_player2_first_throw = False      # Ezek az overtimenal kellenek, hogy tudjuk hany dobasa van a jatekosnak, hogy visszaszalhasson
         self.one_v_one_player2_second_throw = False     # Ezek az overtimenal kellenek, hogy tudjuk hany dobasa van a jatekosnak, hogy visszaszalhasson
+        self.one_v_one_overtime_first_throw = False    # Ha ket dobas van visszaszallni, megtortent-e az elso
 
 
 
@@ -496,6 +497,12 @@ class TrackerWindow(ctk.CTk):
                     self.one_v_one_player1_total_throws += 1
                     self.one_v_one_player1_total_hits += 1
                     self.one_v_one_player2_cups_left -= 1
+
+                    # Dobasok nyomon kovetese a hosszabbitas vegett a hosszabbitasban
+                    if self.one_v_one_player1_first_throw == False:
+                        self.one_v_one_player1_first_throw = True
+                    elif self.one_v_one_player1_second_throw == False:
+                        self.one_v_one_player1_second_throw = True
                     
                     # Labelek valtoztatasa
                     self.one_v_one_player1_total_throws_var_label.configure(text=self.one_v_one_player1_total_throws + self.one_v_one_player1_throw_before_overtime)
@@ -601,6 +608,12 @@ class TrackerWindow(ctk.CTk):
                     self.one_v_one_player2_total_hits += 1
                     self.one_v_one_player1_cups_left -= 1
 
+                    # Dobasok nyomon kovetese a hosszabbitas vegett a hosszabbitasban
+                    if self.one_v_one_player2_first_throw == False:
+                        self.one_v_one_player2_first_throw = True
+                    elif self.one_v_one_player2_second_throw == False:
+                        self.one_v_one_player2_second_throw = True
+
                     # Labelek megvaltoztatasa
                     self.one_v_one_player2_total_throws_var_label.configure(text=self.one_v_one_player2_total_throws + self.one_v_one_player2_throw_before_overtime)
                     self.one_v_one_player2_total_hits_var_label.configure(text=self.one_v_one_player2_total_hits)
@@ -675,12 +688,26 @@ class TrackerWindow(ctk.CTk):
                 elif self.one_v_one_overtime_var == True and self.one_v_one_overtime_started == False:
                     self.one_v_one_player1_total_throws += 1
                     self.one_v_one_player1_total_miss += 1
+
+                    # Ha egy pohara van az ellenfelnek, es masodikra ment be vagy triplabol
+                    if self.one_v_one_player2_cups_left == 1:
+                         if self.one_v_one_player2_second_throw == True or self.one_v_one_third_shot == True:
+                            if self.one_v_one_overtime_first_throw == False:
+                                self.one_v_one_overtime_first_throw = True
+                                return
+                        
                     self.one_v_one_check_endgame()
                 
                 # 3v3 hosszabbitas
                 else:
                     self.one_v_one_player1_total_throws += 1
                     self.one_v_one_player1_total_miss += 1
+
+                    # Dobasok nyomon kovetese a hosszabbitas vegett a hosszabbitasban
+                    if self.one_v_one_player1_first_throw == False:
+                        self.one_v_one_player1_first_throw = True
+                    elif self.one_v_one_player1_second_throw == False:
+                        self.one_v_one_player1_second_throw = True
                     
                     # Labelek valtoztatasa
                     self.one_v_one_player1_total_throws_var_label.configure(text=self.one_v_one_player1_total_throws + self.one_v_one_player1_throw_before_overtime)
@@ -731,16 +758,30 @@ class TrackerWindow(ctk.CTk):
                         if self.one_v_one_player2_total_throws % 2 == 1:
                             self.one_v_one_deactivate_button(self.one_v_one_player2)
 
-                # Ha hosszabbitasban miss instant Lose
+                # Ha hosszabbitasban miss instant Lose, kiveve ha csak masodikra vagy triplabol ment be
                 elif self.one_v_one_overtime_var == True and self.one_v_one_overtime_started == False:
                     self.one_v_one_player2_total_throws += 1
                     self.one_v_one_player2_total_miss += 1
+
+                    # Ha egy pohara van az ellenfelnek, es masodikra ment be
+                    if self.one_v_one_player1_cups_left == 1:
+                        if self.one_v_one_player1_second_throw == True or self.one_v_one_third_shot == True:
+                            if self.one_v_one_overtime_first_throw == False:
+                                self.one_v_one_overtime_first_throw = True
+                                return
+                    
                     self.one_v_one_check_endgame()
 
                 # 3v3 hosszabbitas
                 else:
                     self.one_v_one_player2_total_throws += 1
                     self.one_v_one_player2_total_miss += 1
+
+                    # Dobasok nyomon kovetese a hosszabbitas vegett a hosszabbitasban
+                    if self.one_v_one_player2_first_throw == False:
+                        self.one_v_one_player2_first_throw = True
+                    elif self.one_v_one_player2_second_throw == False:
+                        self.one_v_one_player2_second_throw = True
 
                     # Labelek megvaltoztatasa
                     self.one_v_one_player2_total_throws_var_label.configure(text=self.one_v_one_player2_total_throws + self.one_v_one_player2_throw_before_overtime)
@@ -849,6 +890,7 @@ class TrackerWindow(ctk.CTk):
         self.one_v_one_player2_doubles = 0
         self.one_v_one_player1_throws_without_miss = 0
         self.one_v_one_player2_throws_without_miss = 0
+        self.one_v_one_overtime_first_throw = False
 
         # Labelek frissitese
         self.one_v_one_player2_score_label.configure(text=self.one_v_one_player2_cups_left)
@@ -887,10 +929,6 @@ class TrackerWindow(ctk.CTk):
                 print(self.one_v_one_player1_first_throw, self.one_v_one_player1_second_throw)
             
         self.one_v_one_change_check_active_player() # Aktiv jatekos nevenek ellenorzese
-        
-        # Dobas valtozok visszaallitasa
-        self.one_v_one_first_throw = False
-        self.one_v_one_second_throw = False
 
 
     def one_v_one_change_check_active_player(self):
