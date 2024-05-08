@@ -256,10 +256,10 @@ class TrackerWindow(ctk.CTk):
         if game_mode == '1v1':
             # Letrehozunk egy halmazt, es azt vizsgaljuk, hogy van-e kozottuk azonos ertek
             if len({self.player1_var.get(), self.player2_var.get()}) < 2:
-                messagebox.showerror("Error", "Nem lehet azonos nevu jatekos!")
+                messagebox.showerror("Error", "The 2 players can't be the same!")
                 return
             if not self.player1_var.get() or not self.player2_var.get():
-                messagebox.showerror("Error", "Legalabb ket jatekost kell valasztanod!")
+                messagebox.showerror("Error", "You need to choose 2 players!")
                 print(self.player1_var.get(), self.player2_var.get())
                 return
 
@@ -267,7 +267,7 @@ class TrackerWindow(ctk.CTk):
         if game_mode == '2v2':
             # Letrehozunk egy halmazt, es azt vizsgaljuk, hogy van-e kozottuk azonos ertek
             if len({self.player1_var.get(), self.player2_var.get(), self.player3_var.get(), self.player4_var.get()}) < 4:
-                messagebox.showerror("Error", "Nem lehet azonos nevu jatekos")
+                messagebox.showerror("Error", "The 2 players can't be the same!")
                 return
 
         # Eddig hasznalt widgetek eltuntese
@@ -306,7 +306,7 @@ class TrackerWindow(ctk.CTk):
         one_v_one_player2 = self.player2_var.get()
 
         # Kezdojatekos eldontese
-        self.starting_player_label = ctk.CTkLabel(self, text='Ki lesz a kezdojatekos?', font=('Arial',26))
+        self.starting_player_label = ctk.CTkLabel(self, text='Who will be the starting player?', font=('Arial',26))
         self.starting_player_label.pack(pady=20)
 
         self.starting_player_one_v_one_end_button1 = ctk.CTkButton(self, text=one_v_one_player1, font=('Arial',16), height=70, command=lambda: self.update_starting_player('1v1', one_v_one_player1, one_v_one_player2))
