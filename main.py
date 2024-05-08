@@ -69,6 +69,13 @@ class PlayerWindow(ctk.CTk):
             scrollbar = ttk.Scrollbar(self)
             scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
 
+            # TreeView style beallitasa
+            style = ttk.Style(self)
+            style.theme_use('clam')  # A 'clam' téma jobban támogatja a testreszabást
+            style.configure("Treeview", font=('Calibri', 15), rowheight=25, background="#28282B", fieldbackground="#28282B", foreground="#FFFFFF")
+            style.configure("Treeview.Heading", font=('Calibri', 16, 'bold'))  # Fejlécek stílusának beállítása
+            style.map('Treeview.Row', background=[('selected', '#347083')], foreground=[('selected', '#ffffff')])  # Kiválasztott sor háttérszíne
+
             # Treeview létrehozása és konfigurálása
             self.player_tree = ttk.Treeview(self, columns=("Name"), show="headings", yscrollcommand=scrollbar.set)
             self.player_tree.heading("Name", text="Name")
