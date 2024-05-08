@@ -334,14 +334,13 @@ class TrackerWindow(ctk.CTk):
 
 
 
-
         # Keret a címke számára a tetején
         self.one_v_one_top_frame = ctk.CTkFrame(self)
         self.one_v_one_top_frame.pack(pady=10, fill="x")
 
         # Soron levo jatekos label
         self.one_v_one_current_player_label = ctk.CTkLabel(self.one_v_one_top_frame, text="Soron levo jatekos:", font=("Arial", 24))
-        self.one_v_one_current_player_label.pack(side='left', padx=(180,0))
+        self.one_v_one_current_player_label.pack(side='left', padx=(200,0))
 
         # Soron levo jatekos var label
         self.one_v_one_current_name_label = ctk.CTkLabel(self.one_v_one_top_frame, text=self.one_v_one_player1, font=("Arial", 24))
@@ -451,6 +450,10 @@ class TrackerWindow(ctk.CTk):
         self.one_v_one_player2_total_percentage_stat_label.pack(side='left', padx=10)
         self.one_v_one_player2_total_percentage_var_label = ctk.CTkLabel(self.one_v_one_player2_total_percentage_stat_frame, text=f'{self.calculate_percentage(self.one_v_one_player2_total_hits + self.one_v_one_player2_hits_after_games, self.one_v_one_player2_total_throws + self.one_v_one_player2_throw_before_overtime + self.one_v_one_player2_throw_after_games)}%', font=("Arial", 20))
         self.one_v_one_player2_total_percentage_var_label.pack(side='left', padx=10)
+
+        # Shortcut gombok bevezetese
+        self.bind('<Key-h>', self.one_v_one_handle_keypress)
+        self.bind('<Key-m>', self.one_v_one_handle_keypress)
 
 
     #1v1 Hit funkcio
@@ -902,7 +905,7 @@ class TrackerWindow(ctk.CTk):
                 self.one_v_one_player1_miss_button.configure(state=ctk.DISABLED)
                 self.one_v_one_player2_hit_one_v_one_end_button.configure(state=ctk.NORMAL)
                 self.one_v_one_player2_miss_one_v_one_end_button.configure(state=ctk.NORMAL)
-                
+
             case self.one_v_one_player2:
                 self.one_v_one_player1_hit_button.configure(state=ctk.NORMAL)
                 self.one_v_one_player1_miss_button.configure(state=ctk.NORMAL)
@@ -1042,6 +1045,25 @@ class TrackerWindow(ctk.CTk):
     # 2v2 Jatekablak
     def two_v_two_tracker_window(self):
         print('2v2')
+
+
+    # Gyorsbillentyu kezelese 1v1 jatekmodban
+    def one_v_one_handle_keypress(self, event):
+        match event.keysym:
+            # Ha a h betut nyomjak le
+            case 'h':
+                if self.one_v_one_player1_hit_button.cget("state") == ctk.NORMAL:
+                    self.one_v_one_hit(self.one_v_one_player1)
+                else:
+                    self.one_v_one_hit(self.one_v_one_player2)
+
+            # Ha az m betut nyomjak le    
+            case 'm':
+                if self.one_v_one_player1_miss_button.cget("state") == ctk.NORMAL:
+                    self.one_v_one_miss(self.one_v_one_player1)
+                else:
+                    self.one_v_one_miss(self.one_v_one_player2)
+
 
     
     # Kezdojatekos valtozoba helyezese
