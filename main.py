@@ -4,7 +4,6 @@ from tkinter import simpledialog
 from tkinter import messagebox
 from tkinter import ttk
 from database import Database
-import sqlite3
 import datetime
 
 
