@@ -2,6 +2,7 @@ import customtkinter as ctk
 import tkinter as tk
 from tkinter import simpledialog
 from tkinter import messagebox
+from tkinter import ttk
 from database import Database
 import sqlite3
 import datetime
@@ -65,13 +66,14 @@ class PlayerWindow(ctk.CTk):
             self.parent = parent
 
             # Scrollbar hozzáadása
-            scrollbar = tk.Scrollbar(self)
+            scrollbar = ttk.Scrollbar(self)
             scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
 
-            # Játékosok listájának megjelenítése
-            self.player_listbox = tk.Listbox(self, yscrollcommand=scrollbar.set)
-            self.player_listbox.pack(pady=10, fill=tk.BOTH, expand=True)
-            scrollbar.config(command=self.player_listbox.yview)
+            # Treeview létrehozása és konfigurálása
+            self.player_tree = ttk.Treeview(self, columns=("Name"), show="headings", yscrollcommand=scrollbar.set)
+            self.player_tree.heading("Name", text="Name")
+            self.player_tree.pack(pady=10, fill=tk.BOTH, expand=True)
+            scrollbar.config(command=self.player_tree.yview)
 
             # Gombok a játékosok kezeléséhez
             add_one_v_one_end_button = ctk.CTkButton(self, text='Add Player', command=self.add_player)
@@ -84,29 +86,37 @@ class PlayerWindow(ctk.CTk):
             self.show_players()
 
 
+        # Jatekosok mutatasa
         def show_players(self):
-            self.database.cursor.execute("SELECT * FROM players")
+            self.player_tree.delete(*self.player_tree.get_children())
+            self.database.cursor.execute("SELECT name FROM players")
             players = self.database.cursor.fetchall()
-            for player in players:
-                self.player_listbox.insert(tk.END, player[1])
+            for name in players:
+                self.player_tree.insert('', tk.END, values=name)
 
-            
+
+        # Jatekos hozzadasa
         def add_player(self):
-            player_name = ctk.CTkInputDialog(text="Name:", title="Add player")
-            player_name = player_name.get_input()
+            player_name = ctk.CTkInputDialog(text="Name:", title="Add player").get_input()
             if player_name:
-                self.database.cursor.execute("INSERT INTO players (name) VALUES (?)", (player_name,))
-                self.database.connection.commit()
-                self.player_listbox.insert(ctk.END, player_name)
+                # Ellenőrizzük, hogy létezik-e már a játékos
+                self.database.cursor.execute("SELECT * FROM players WHERE name=?", (player_name,))
+                if self.database.cursor.fetchone() is not None:
+                    messagebox.showerror("Error", "A player with this name already exists!")
+                else:
+                    self.database.cursor.execute("INSERT INTO players (name) VALUES (?)", (player_name,))
+                    self.database.connection.commit()
+                    self.show_players()
 
-
+         
+        # Elem torlese a Treeview-bol
         def delete_player(self):
-            selected_index = self.player_listbox.curselection()
-            if selected_index:
-                player_name = self.player_listbox.get(selected_index)
+            selected_item = self.player_tree.selection()
+            if selected_item:
+                player_name = self.player_tree.item(selected_item, "values")[0]  # A név kivétele
                 self.database.cursor.execute("DELETE FROM players WHERE name=?", (player_name,))
                 self.database.connection.commit()
-                self.player_listbox.delete(selected_index)
+                self.player_tree.delete(selected_item)
         
 
 
