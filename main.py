@@ -146,14 +146,17 @@ class TrackerWindow(ctk.CTk):
         self.mode_label.pack(pady=10)
 
         # 1v1 rádiógomb
-        self.mode_1v1_var = tk.IntVar(value=1)  # Alapértelmezett kiválasztva
-        self.mode_1v1_one_v_one_end_button = ctk.CTkRadioButton(self, text="1v1", variable=self.mode_1v1_var, value=1)
-        self.mode_1v1_one_v_one_end_button.pack()
+        self.mode_var = tk.IntVar(value=1)  # Alapértelmezett kiválasztva
+        self.mode_1v1_one_v_one_end_button = ctk.CTkRadioButton(self, text="1v1", variable=self.mode_var, value=1)
+        self.mode_1v1_one_v_one_end_button.pack(pady=4)
 
         # 2v2 rádiógomb
-        self.mode_2v2_var = tk.IntVar(value=0)
-        self.mode_2v2_one_v_one_end_button = ctk.CTkRadioButton(self, text="2v2", variable=self.mode_1v1_var, value=0)
-        self.mode_2v2_one_v_one_end_button.pack(pady=10)
+        self.mode_2v2_one_v_one_end_button = ctk.CTkRadioButton(self, text="2v2", variable=self.mode_var, value=0)
+        self.mode_2v2_one_v_one_end_button.pack(pady=4)
+
+        # Solo rádiógomb
+        self.mode_solo_one_v_one_end_button = ctk.CTkRadioButton(self, text="Solo", variable=self.mode_var, value=2)
+        self.mode_solo_one_v_one_end_button.pack(pady=4)
 
         # "Select" gomb
         self.select_one_v_one_end_button = ctk.CTkButton(self, text="Select", command=self.select_players)
@@ -170,6 +173,7 @@ class TrackerWindow(ctk.CTk):
         self.mode_1v1_one_v_one_end_button.pack_forget()
         self.mode_2v2_one_v_one_end_button.pack_forget()
         self.select_one_v_one_end_button.pack_forget()
+        self.mode_solo_one_v_one_end_button.pack_forget()
 
         # Jatekos varok
         self.player1_var = tk.StringVar()
@@ -182,7 +186,7 @@ class TrackerWindow(ctk.CTk):
 
         # Valasztott jatekmod alapjan ujrarendereljuk az ablakot
         # 1v1
-        if self.mode_1v1_var.get() == 1:
+        if self.mode_var.get() == 1:
             self.player1_label = ctk.CTkLabel(self, text="Player 1:")
             self.player1_label.pack(pady=5)
             self.player1_combo = ctk.CTkComboBox(self, variable=self.player1_var, state='readonly', values=self.players)
@@ -198,7 +202,7 @@ class TrackerWindow(ctk.CTk):
 
 
         # 2v2
-        elif self.mode_2v2_var.get() == 0:
+        elif self.mode_var.get() == 0:
             self.player1_label = ctk.CTkLabel(self, text="Player 1:")
             self.player1_label.pack(pady=5)
             self.player1_combo = ctk.CTkComboBox(self, variable=self.player1_var, state='readonly', values=self.players)
@@ -222,10 +226,27 @@ class TrackerWindow(ctk.CTk):
             self.game_start_one_v_one_end_button = ctk.CTkButton(self, text='Start', command=lambda: self.prepare_game_window('2v2'))
             self.game_start_one_v_one_end_button.pack(pady=10)
 
+
+        # Solo    
+        elif self.mode_var.get() == 2:
+            self.player1_label = ctk.CTkLabel(self, text="Player:")
+            self.player1_label.pack(pady=(40,5))
+            self.player1_combo = ctk.CTkComboBox(self, variable=self.player1_var, state='readonly', values=self.players)
+            self.player1_combo.pack(pady=5)
+
+            self.game_start_one_v_one_end_button = ctk.CTkButton(self, text='Start', command=lambda: self.prepare_game_window('solo'))
+            self.game_start_one_v_one_end_button.pack(pady=25)
+
+
     def prepare_game_window(self, game_mode):
         # A kivalasztott neveket kirakjuk a valtozokba
+        # Ha Solo
         self.player1_var.set(self.player1_combo.get())
-        self.player2_var.set(self.player2_combo.get())
+
+        # Ha 2 jatekos van
+        if game_mode == '1v1':
+            self.player2_var.set(self.player2_combo.get())
+
         # Ha 4 jatekos van, a masik ketto valtozonak is adunk erteket
         if game_mode =='2v2':
             self.player3_var.set(self.player3_combo.get())
@@ -252,9 +273,12 @@ class TrackerWindow(ctk.CTk):
         # Eddig hasznalt widgetek eltuntese
         self.player1_label.pack_forget()
         self.player1_combo.pack_forget()
-        self.player2_label.pack_forget()
-        self.player2_combo.pack_forget()
         self.game_start_one_v_one_end_button.pack_forget()
+
+        if game_mode == '1v1':
+            self.player2_label.pack_forget()
+            self.player2_combo.pack_forget()
+
         if game_mode == '2v2':
             self.player3_label.pack_forget()
             self.player3_combo.pack_forget()
@@ -267,6 +291,8 @@ class TrackerWindow(ctk.CTk):
                 self.one_v_one_tracker_window_starting_player()
             case '2v2':
                 self.two_v_two_tracker_window()
+            case 'solo':
+                self.solo_tracker_window()
 
 
     # 1v1 Kezdojatekos kijelolese
@@ -990,12 +1016,12 @@ class TrackerWindow(ctk.CTk):
         self.one_v_one_change_check_active_player() # Aktiv jatekos nevenek ellenorzese
 
 
+    # Jelenleg aktiv jatekos Label valtoztatasa
     def one_v_one_change_check_active_player(self):
         if self.one_v_one_player1_hit_button.cget("state") == ctk.NORMAL:
             self.one_v_one_current_name_label.configure(text=self.one_v_one_player1)
         else:
             self.one_v_one_current_name_label.configure(text=self.one_v_one_player2)
-
 
 
     # Ha 1v1-nel az uj jatekot valasztja
@@ -1044,7 +1070,10 @@ class TrackerWindow(ctk.CTk):
             )
 
 
-            
+    # Solo jatekablak
+    def solo_tracker_window(self):
+        print('Work in progress!')
+
 
     # 2v2 Jatekablak
     def two_v_two_tracker_window(self):
