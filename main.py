@@ -235,7 +235,11 @@ class TrackerWindow(ctk.CTk):
         if game_mode == '1v1':
             # Letrehozunk egy halmazt, es azt vizsgaljuk, hogy van-e kozottuk azonos ertek
             if len({self.player1_var.get(), self.player2_var.get()}) < 2:
-                messagebox.showerror("Error", "Nem lehet azonos nevu jatekos")
+                messagebox.showerror("Error", "Nem lehet azonos nevu jatekos!")
+                return
+            if not self.player1_var.get() or not self.player2_var.get():
+                messagebox.showerror("Error", "Legalabb ket jatekost kell valasztanod!")
+                print(self.player1_var.get(), self.player2_var.get())
                 return
 
         # 2v2 jatekmod eseteben ellenorzes, hogy van-e azonos nevu jatekos
