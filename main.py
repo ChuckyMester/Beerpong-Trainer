@@ -1072,7 +1072,78 @@ class TrackerWindow(ctk.CTk):
 
     # Solo jatekablak
     def solo_tracker_window(self):
-        print('Work in progress!')
+
+        # Widgetek eltuntetese as ablak meretenek atallitasa
+        self.geometry('690x420')
+
+        # Valtozok a jatekhoz
+        self.solo_player_record_name = "NAME"
+        self.solo_player = self.player1_var.get()
+        self.solo_cups_left = 10
+        
+        # Keret a címke számára a tetején
+        self.solo_top_frame = ctk.CTkFrame(self)
+        self.solo_top_frame.pack(pady=10, fill="x")
+
+        # Jelenlegi rekordtarto label
+        self.solo_current_record_player = ctk.CTkLabel(self.solo_top_frame, text=f"Jelenlegi rekordot tartja: {self.solo_player_record_name}", font=("Arial", 24))
+        self.solo_current_record_player.pack(side='left', padx=(200,0))
+
+        # Player keret
+        self.solo_player_frame = ctk.CTkFrame(self, width=240, height=100)
+        self.solo_player_frame.pack(side="left", padx=10, pady=10, fill="both", expand=True)
+
+        # Statisztika keret
+        self.solo_stat_frame = ctk.CTkFrame(self, width=240, height=100)
+        self.solo_stat_frame.pack(side="right", padx=10, pady=10, fill="both", expand=True)
+
+        # Hatralevo poharak szama
+        self.solo_player_name_label = ctk.CTkLabel(self.solo_player_frame, text=self.solo_player, font=("Arial", 26))
+        self.solo_player_name_label.pack(pady=(20, 5))
+        self.solo_player_score_label = ctk.CTkLabel(self.solo_player_frame, text=str(self.solo_cups_left), font=("Arial", 24))
+        self.solo_player_score_label.pack(pady=5)
+
+        # Player gombok
+        self.solo_button_frame = ctk.CTkFrame(self.solo_player_frame)
+        self.solo_button_frame.pack(pady=10)
+        self.solo_hit_button = ctk.CTkButton(self.solo_button_frame, text="Hit", command=lambda: print('TODO HIT'), fg_color="green", height=60, font=("Arial", 25))
+        self.solo_hit_button.pack(side='left', padx=10)
+        self.solo_miss_button = ctk.CTkButton(self.solo_button_frame, text="Miss", command=lambda: print('TODO MISS'), fg_color="red", height=60, font=("Arial", 25))
+        self.solo_miss_button.pack(side='left', padx=10)
+
+        # Player Total throw statisztika 
+        self.solo_total_throws_stat_frame = ctk.CTkFrame(self.solo_player_frame)
+        self.solo_total_throws_stat_frame.pack(pady=(20,0), fill="x")
+        self.solo_total_throws_stat_label = ctk.CTkLabel(self.solo_total_throws_stat_frame, text="Total throws:", font=("Arial", 20))
+        self.solo_total_throws_stat_label.pack(side='left', padx=10)
+        self.solo_total_throws_var_label = ctk.CTkLabel(self.solo_total_throws_stat_frame, text="TOTAL THROW VAR", font=("Arial", 20))
+        self.solo_total_throws_var_label.pack(side='left', padx=10)
+
+        # Player1 Total hits statisztika 
+        self.solo_total_hits_stat_frame = ctk.CTkFrame(self.solo_player_frame)
+        self.solo_total_hits_stat_frame.pack(pady=0, fill="x")
+        self.solo_total_hits_stat_label = ctk.CTkLabel(self.solo_total_hits_stat_frame, text="Total hits:", font=("Arial", 20))
+        self.solo_total_hits_stat_label.pack(side='left', padx=10)
+        self.solo_total_hits_var_label = ctk.CTkLabel(self.solo_total_hits_stat_frame, text="HIT VAR", font=("Arial", 20))
+        self.solo_total_hits_var_label.pack(side='left', padx=10)
+
+        # Player1 Total miss statisztika 
+        self.solo_total_miss_stat_frame = ctk.CTkFrame(self.solo_player_frame)
+        self.solo_total_miss_stat_frame.pack(pady=0, fill="x")
+        self.solo_total_miss_stat_label = ctk.CTkLabel(self.solo_total_miss_stat_frame, text="Total misses:", font=("Arial", 20))
+        self.solo_total_miss_stat_label.pack(side='left', padx=10)
+        self.solo_total_miss_var_label = ctk.CTkLabel(self.solo_total_miss_stat_frame, text="MISS VAR", font=("Arial", 20))
+        self.solo_total_miss_var_label.pack(side='left', padx=10)
+
+        # Player1 Total percentage statisztika 
+        self.solo_total_percentage_stat_frame = ctk.CTkFrame(self.solo_player_frame)
+        self.solo_total_percentage_stat_frame.pack(pady=0, fill="x")
+        self.solo_total_percentage_stat_label = ctk.CTkLabel(self.solo_total_percentage_stat_frame, text="Total percentage:", font=("Arial", 20))
+        self.solo_total_percentage_stat_label.pack(side='left', padx=10)
+        self.solo_total_percentage_var_label = ctk.CTkLabel(self.solo_total_percentage_stat_frame, text=f'{self.calculate_percentage(1, 1)}%', font=("Arial", 20)) # TODO
+        self.solo_total_percentage_var_label.pack(side='left', padx=10)
+
+
 
 
     # 2v2 Jatekablak
@@ -1097,8 +1168,7 @@ class TrackerWindow(ctk.CTk):
                 else:
                     self.one_v_one_miss(self.one_v_one_player2)
 
-
-    
+ 
     # Kezdojatekos valtozoba helyezese
     def update_starting_player(self, mode, startingplayer, other_player):
         match mode:
@@ -1107,6 +1177,7 @@ class TrackerWindow(ctk.CTk):
             case '2v2':
                 print('In work')
                 # TODO
+
 
     # Szazalek szamitas
     def calculate_percentage(self, numerator, denominator):
