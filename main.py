@@ -5,8 +5,11 @@ from tkinter import messagebox
 from tkinter import ttk
 from database import Database
 import datetime
+import helpers
 
 
+
+# Fomenu ablak
 class MainWindow(ctk.CTk):
 
     # Inicializalas
@@ -15,7 +18,7 @@ class MainWindow(ctk.CTk):
         self.title('Main Menu')
         self.geometry('200x200')
         # Icon used from: https://www.flaticon.com
-        self.iconbitmap('assets/beerpong.ico')
+        self.iconbitmap(helpers.decide_logo_by_system())
 
         # Adatbazis object meghivasa
         self.database = Database()
@@ -48,6 +51,7 @@ class MainWindow(ctk.CTk):
 
 
 
+# Jatekos menedzsment ablak
 class PlayerWindow(ctk.CTk):
         
         # Inicializalas
@@ -56,7 +60,7 @@ class PlayerWindow(ctk.CTk):
             self.title('Player Management')
             self.geometry('500x500')
             # Icon used from: https://www.flaticon.com
-            self.iconbitmap('assets/beerpong.ico')
+            self.iconbitmap(helpers.decide_logo_by_system())
 
             # Kapcsolat létrehozása az adatbázissal
             self.database = Database()
@@ -126,6 +130,7 @@ class PlayerWindow(ctk.CTk):
         
 
 
+# Tracker jatekmod ablakai
 class TrackerWindow(ctk.CTk):
     # Inicializalas
     def __init__(self, parent):
@@ -133,7 +138,7 @@ class TrackerWindow(ctk.CTk):
         self.title('Tracker')
         self.geometry('500x200')
         # Icon used from: https://www.flaticon.com
-        self.iconbitmap('assets/beerpong.ico')
+        self.iconbitmap(helpers.decide_logo_by_system())
 
         # Kapcsolat létrehozása az adatbázissal
         self.database = Database()
@@ -1197,6 +1202,7 @@ class TrackerWindow(ctk.CTk):
             players_list.append(player[0])
         
         return players_list
+
 
 
 
