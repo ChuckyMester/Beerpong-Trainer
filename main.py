@@ -32,7 +32,7 @@ class MainWindow(ctk.CTk):
         trainer_one_v_one_end_button.pack(pady=10)
 
         # Scores
-        score_one_v_one_end_button = ctk.CTkButton(self, text='Scores')
+        score_one_v_one_end_button = ctk.CTkButton(self, text='Scores', command=self.open_score_window)
         score_one_v_one_end_button.pack(pady=10)
 
         # Players
@@ -48,6 +48,10 @@ class MainWindow(ctk.CTk):
     def open_tracker_window(self):
         tracker_window = TrackerWindow(self)
         tracker_window.mainloop()
+
+    def open_score_window(self):
+        score_window = ScoreWindow(self)
+        score_window.mainloop()
 
 
 
@@ -1203,6 +1207,84 @@ class TrackerWindow(ctk.CTk):
         
         return players_list
 
+
+
+# Score Window
+class ScoreWindow(ctk.CTk):
+
+    # Inicializalas
+    def __init__(self, parent):
+        super().__init__()
+        self.title('Scores')
+        self.geometry('900x600')
+        # Icon used from: https://www.flaticon.com
+        self.iconbitmap(helpers.decide_logo_by_system())
+
+        # Kapcsolat létrehozása az adatbázissal
+        self.database = Database()
+
+        # Szülőablak
+        self.parent = parent
+
+        # Bal és jobb keretek létrehozása
+        self.score_frame_left = ctk.CTkFrame(self)
+        self.score_frame_left.pack(side="left", fill="both", expand=True, padx=5, pady=10)
+
+        self.score_frame_right = ctk.CTkFrame(self, width=240, height=500)
+        self.score_frame_right.pack(side="right", fill="y", expand=False, padx=5, pady=10)
+
+        # Bal oldali keretek
+        self.score_frame_left_top = ctk.CTkFrame(self.score_frame_left, width=560, height=450)
+        self.score_frame_left_top.pack(side="top", fill="both", expand=True, padx=10, pady=10)
+
+        self.score_frame_left_bottom = ctk.CTkFrame(self.score_frame_left, width=560, height=200)
+        self.score_frame_left_bottom.pack(side="top", fill="both", expand=True, padx=10, pady=10)
+
+        # Treeview létrehozása
+        self.score_tree = ttk.Treeview(self.score_frame_left_top, columns=("Player", "Throws", "Hits", "Miss", "Percentage"), show="headings")
+        self.score_tree.heading("Player", text="Player")
+        self.score_tree.heading("Throws", text="Throws")
+        self.score_tree.heading("Hits", text="Hits")
+        self.score_tree.heading("Miss", text="Miss")
+        self.score_tree.heading("Percentage", text="Percentage")
+        self.score_tree.pack(expand=True, fill="both")
+
+        # Bal also keret
+        # Cím a bal alsó keretben
+        self.score_title_label = ctk.CTkLabel(self.score_frame_left_bottom, text="Record Score for Player", font=('Helvetica', 14))
+        self.score_title_label.pack(pady=(20, 10))
+
+        # Jobb oldali elemek
+        self.score_player_names_combobox = self.load_players()  #-------------------------------------------------->   Jatekosok neveinek comboboxba toltese
+        self.score_player_combobox = ctk.CTkComboBox(self.score_frame_right, values=self.score_player_names_combobox)
+        self.score_player_combobox.pack(pady=10, padx=5)
+
+        self.score_game_modes_combobox = ['1v1', '2v2', 'Solo']
+        self.score_game_mode_combobox = ctk.CTkComboBox(self.score_frame_right, values=self.score_game_modes_combobox)
+        self.score_game_mode_combobox.pack(pady=10, padx=5)
+
+        self.score_query_button = ctk.CTkButton(self.score_frame_right, text="Search", command=self.search_scores)
+        self.score_query_button.pack(pady=15, padx=5)
+
+        self.score_result_label = ctk.CTkLabel(self.score_frame_right, text="", font=('Helvetica', 14))
+        self.score_result_label.pack(pady=10, padx=5)
+
+
+    # Jatekosok betoltese a comboxba
+    def load_players(self):
+        query = "SELECT name FROM players"
+        self.database.cursor.execute(query)
+        players = [row[0] for row in self.database.cursor.fetchall()]
+        return players
+    
+
+    # A megadott adatokkal kereses az adatbazisban
+    def search_scores(self):
+        player = self.score_player_combobox.get()
+        game_mode = self.score_game_mode_combobox.get().lower()
+        print(player, game_mode)
+
+            
 
 
 
