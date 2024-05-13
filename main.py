@@ -1382,6 +1382,12 @@ class ScoreWindow(ctk.CTk):
         self.score_frame_left_bottom = ctk.CTkFrame(self.score_frame_left, width=560, height=200)
         self.score_frame_left_bottom.pack(side="top", fill="both", expand=True, padx=10, pady=10)
 
+        # Treeview style
+        style = ttk.Style(self)
+        style.theme_use('clam')  # A 'clam' téma jobban támogatja a testreszabást
+        style.configure("Treeview", background="#BDC8C8", fieldbackground="#b3d9ff")
+        style.configure("Treeview", font=('Calibri', 15), rowheight=25, background="#28282B", fieldbackground="#28282B", foreground="#FFFFFF")
+
         # Treeview létrehozása
         self.score_tree = ttk.Treeview(self.score_frame_left_top, columns=("Player", "Throws", "Hits", "Miss", "Percentage"), show="headings")
         self.score_tree.heading("Player", text="Player")
@@ -1428,6 +1434,11 @@ class ScoreWindow(ctk.CTk):
         statistics = self.database.get_player_match_data(player, game_mode) # Összes statisztika lekérése
         best_percentage = None # Globális változó hogy megkeressük a legjobb meccsét
         best_match_id = None
+        
+        # Treeview kiuritese, mielott feltoltjuk ujabb adatokkal
+        for data in self.score_tree.get_children():
+            self.score_tree.delete(data)
+
         # Szétszedés és megjelenítés meccsenként
         for statistic in statistics:
             total_throws = statistic[3]
