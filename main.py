@@ -1450,11 +1450,13 @@ class ScoreWindow(ctk.CTk):
         style.configure("Treeview", font=('Calibri', 15), rowheight=25, background="#28282B", fieldbackground="#28282B", foreground="#FFFFFF")
 
         # Treeview létrehozása
-        self.score_tree = ttk.Treeview(self.score_frame_left_top, columns=("Player", "Throws", "Hits", "Miss", "Percentage"), show="headings")
+        self.score_tree = ttk.Treeview(self.score_frame_left_top, columns=("Player", "Throws", "Hits", "Miss", "Doubles", "Triples", "Percentage"), show="headings")
         self.score_tree.heading("Player", text="Player")
         self.score_tree.heading("Throws", text="Throws")
         self.score_tree.heading("Hits", text="Hits")
         self.score_tree.heading("Miss", text="Miss")
+        self.score_tree.heading("Doubles", text="Doubles")
+        self.score_tree.heading("Triples", text="Triples")
         self.score_tree.heading("Percentage", text="Percentage")
         self.score_tree.pack(expand=True, fill="both")
 
@@ -1505,22 +1507,24 @@ class ScoreWindow(ctk.CTk):
             total_throws = statistic[3]
             total_hits = statistic[4]
             total_misses = statistic[5]
-            percentage = f"{statistic[7]}%"
-            self.score_tree.insert('', tk.END, values=(player ,total_throws, total_hits, total_misses, percentage))
+            doubles = statistic[6]
+            triples = statistic[7]
+            percentage = f"{statistic[8]}%"
+            self.score_tree.insert('', tk.END, values=(player ,total_throws, total_hits, total_misses, doubles, triples, percentage))
 
             # Ha a változóban nincs még eredmény elmentjük az elsőt, utána meg ha nagyobb a jelenlegi iterácóban levő, akkor felülírjuk
             if best_percentage == None:
-                best_percentage = statistic[7]
+                best_percentage = statistic[8]
                 best_match_id = statistic[0]
             elif statistic[7] > best_percentage:
-                best_percentage = statistic[7]
+                best_percentage = statistic[8]
                 best_match_id = statistic[0]
 
         best_match_data = self.database.get_best_match_data(best_match_id)
 
         # Ha több megegyező százalékos meccset kapunk vissza, megjelenítjük a leglesőt
         best_match_data = best_match_data[0]
-        print(f"Dobások száma:{best_match_data[3]}, Százalék: {best_match_data[7]}%")
+        print(f"Dobások száma:{best_match_data[3]}, Százalék: {best_match_data[8]}%")
 
         
             
