@@ -1419,7 +1419,7 @@ class ScoreWindow(ctk.CTk):
     def __init__(self, parent):
         super().__init__()
         self.title('Scores')
-        self.geometry('900x600')
+        self.geometry('1000x600')
         # Icon used from: https://www.flaticon.com
         self.iconbitmap(helpers.decide_logo_by_system())
 
@@ -1450,14 +1450,23 @@ class ScoreWindow(ctk.CTk):
         style.configure("Treeview", font=('Calibri', 15), rowheight=25, background="#28282B", fieldbackground="#28282B", foreground="#FFFFFF")
 
         # Treeview létrehozása
-        self.score_tree = ttk.Treeview(self.score_frame_left_top, columns=("Player", "Throws", "Hits", "Miss", "Doubles", "Triples", "Percentage"), show="headings")
+        self.score_tree = ttk.Treeview(self.score_frame_left_top, columns=("Player", "Throws", "Hits", "Miss", "Doubles", "Triples", "Percentage", "Date"), show="headings")
         self.score_tree.heading("Player", text="Player")
+        self.score_tree.column("Player", width=140, anchor='center')
         self.score_tree.heading("Throws", text="Throws")
+        self.score_tree.column("Throws", width=140, anchor='center')
         self.score_tree.heading("Hits", text="Hits")
+        self.score_tree.column("Hits", width=140, anchor='center')
         self.score_tree.heading("Miss", text="Miss")
+        self.score_tree.column("Miss", width=140, anchor='center')
         self.score_tree.heading("Doubles", text="Doubles")
+        self.score_tree.column("Doubles", width=140, anchor='center')
         self.score_tree.heading("Triples", text="Triples")
+        self.score_tree.column("Triples", width=140, anchor='center')
         self.score_tree.heading("Percentage", text="Percentage")
+        self.score_tree.column("Percentage", width=140, anchor='center')
+        self.score_tree.heading("Date", text="Date")
+        self.score_tree.column("Date", width=140, anchor='center')
         self.score_tree.pack(expand=True, fill="both")
 
         # Bal also keret
@@ -1510,7 +1519,8 @@ class ScoreWindow(ctk.CTk):
             doubles = statistic[6]
             triples = statistic[7]
             percentage = f"{statistic[8]}%"
-            self.score_tree.insert('', tk.END, values=(player ,total_throws, total_hits, total_misses, doubles, triples, percentage))
+            date = statistic[9]
+            self.score_tree.insert('', tk.END, values=(player ,total_throws, total_hits, total_misses, doubles, triples, percentage, date))
 
             # Ha a változóban nincs még eredmény elmentjük az elsőt, utána meg ha nagyobb a jelenlegi iterácóban levő, akkor felülírjuk
             if best_percentage == None:
