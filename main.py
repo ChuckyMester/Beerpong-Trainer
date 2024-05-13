@@ -984,7 +984,6 @@ class TrackerWindow(ctk.CTk):
 
     # Overtime
     def one_v_one_overtime(self, winner):
-        self.one_v_one_change_check_active_player() # Aktiv jatekos nevenek ellenorzese
         self.one_v_one_overtime_var = True
         match winner:
             case self.one_v_one_player1:
@@ -998,6 +997,8 @@ class TrackerWindow(ctk.CTk):
                 self.one_v_one_player1_miss_button.configure(state=ctk.NORMAL)
                 self.one_v_one_player2_hit_one_v_one_end_button.configure(state=ctk.DISABLED)
                 self.one_v_one_player2_miss_one_v_one_end_button.configure(state=ctk.DISABLED)
+
+        self.one_v_one_change_check_active_player() # Aktiv jatekos nevenek ellenorzese
 
     
     # Overtime elinditasa a sikeres visszaszallok utan
@@ -1034,6 +1035,11 @@ class TrackerWindow(ctk.CTk):
         self.one_v_one_player1_throws_without_miss = 0
         self.one_v_one_player2_throws_without_miss = 0
         self.one_v_one_overtime_first_throw = False
+        self.one_v_one_player1_first_throw = False
+        self.one_v_one_player1_second_throw = False
+        self.one_v_one_player2_first_throw = False
+        self.one_v_one_player2_second_throw = False
+        self.one_v_one_third_shot = False
 
         # Labelek frissitese
         self.one_v_one_player2_score_label.configure(text=self.one_v_one_player2_cups_left)
@@ -1129,6 +1135,10 @@ class TrackerWindow(ctk.CTk):
             p1tripleag=player1_triples,
             p2tripleag=player2_triples
             )
+
+
+
+
 
 
     # Solo jatekablak
@@ -1356,11 +1366,13 @@ class TrackerWindow(ctk.CTk):
 
 
 
-
-
     # 2v2 Jatekablak
     def two_v_two_tracker_window(self):
         print('2v2')
+
+
+
+
 
 
     # Gyorsbillentyu kezelese 1v1 jatekmodban
@@ -1511,6 +1523,10 @@ class ScoreWindow(ctk.CTk):
         for data in self.score_tree.get_children():
             self.score_tree.delete(data)
 
+        if len(statistics) == 0:
+            print("No match data for that player!")
+            return
+
         # Szétszedés és megjelenítés meccsenként
         for statistic in statistics:
             total_throws = statistic[3]
@@ -1526,7 +1542,7 @@ class ScoreWindow(ctk.CTk):
             if best_percentage == None:
                 best_percentage = statistic[8]
                 best_match_id = statistic[0]
-            elif statistic[7] > best_percentage:
+            elif statistic[8] > best_percentage:
                 best_percentage = statistic[8]
                 best_match_id = statistic[0]
 
