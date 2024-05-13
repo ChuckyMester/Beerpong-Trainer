@@ -1080,7 +1080,7 @@ class TrackerWindow(ctk.CTk):
 
 
     # Solo jatekablak
-    def solo_tracker_window(self):
+    def solo_tracker_window(self, throws=0, hits=0, miss=0, double=0, triple=0):
 
         # Widgetek eltuntetese as ablak meretenek atallitasa
         self.geometry('690x420')
@@ -1089,6 +1089,22 @@ class TrackerWindow(ctk.CTk):
         self.solo_player_record_name = "NAME"
         self.solo_player = self.player1_var.get()
         self.solo_cups_left = 10
+        self.solo_total_throws = 0
+        self.solo_total_throws_after_game = throws
+        self.solo_hits = 0
+        self.solo_hits_after_game = hits
+        self.solo_miss = 0
+        self.solo_miss_after_game = miss
+        self.solo_double = 0
+        self.solo_double_after_game = double
+        self.solo_triple = 0
+        self.solo_triple_after_game = triple
+        self.solo_round = 0
+        self.solo_first_throw = False
+        self.solo_second_throw = False
+        self.solo_third_throw = False
+        self.solo_throw_without_miss = 0
+
         
         # Keret a címke számára a tetején
         self.solo_top_frame = ctk.CTkFrame(self)
@@ -1115,9 +1131,9 @@ class TrackerWindow(ctk.CTk):
         # Player gombok
         self.solo_button_frame = ctk.CTkFrame(self.solo_player_frame)
         self.solo_button_frame.pack(pady=10)
-        self.solo_hit_button = ctk.CTkButton(self.solo_button_frame, text="Hit", command=lambda: print('TODO HIT'), fg_color="green", height=60, font=("Arial", 25))
+        self.solo_hit_button = ctk.CTkButton(self.solo_button_frame, text="Hit", command=self.solo_hit_function, fg_color="green", height=60, font=("Arial", 25))
         self.solo_hit_button.pack(side='left', padx=10)
-        self.solo_miss_button = ctk.CTkButton(self.solo_button_frame, text="Miss", command=lambda: print('TODO MISS'), fg_color="red", height=60, font=("Arial", 25))
+        self.solo_miss_button = ctk.CTkButton(self.solo_button_frame, text="Miss", command=self.solo_miss_function, fg_color="red", height=60, font=("Arial", 25))
         self.solo_miss_button.pack(side='left', padx=10)
 
         # Player Total throw statisztika 
@@ -1125,7 +1141,7 @@ class TrackerWindow(ctk.CTk):
         self.solo_total_throws_stat_frame.pack(pady=(20,0), fill="x")
         self.solo_total_throws_stat_label = ctk.CTkLabel(self.solo_total_throws_stat_frame, text="Total throws:", font=("Arial", 20))
         self.solo_total_throws_stat_label.pack(side='left', padx=10)
-        self.solo_total_throws_var_label = ctk.CTkLabel(self.solo_total_throws_stat_frame, text="TOTAL THROW VAR", font=("Arial", 20))
+        self.solo_total_throws_var_label = ctk.CTkLabel(self.solo_total_throws_stat_frame, text=self.solo_total_throws + self.solo_total_throws_after_game, font=("Arial", 20))
         self.solo_total_throws_var_label.pack(side='left', padx=10)
 
         # Player1 Total hits statisztika 
@@ -1133,7 +1149,7 @@ class TrackerWindow(ctk.CTk):
         self.solo_total_hits_stat_frame.pack(pady=0, fill="x")
         self.solo_total_hits_stat_label = ctk.CTkLabel(self.solo_total_hits_stat_frame, text="Total hits:", font=("Arial", 20))
         self.solo_total_hits_stat_label.pack(side='left', padx=10)
-        self.solo_total_hits_var_label = ctk.CTkLabel(self.solo_total_hits_stat_frame, text="HIT VAR", font=("Arial", 20))
+        self.solo_total_hits_var_label = ctk.CTkLabel(self.solo_total_hits_stat_frame, text=self.solo_hits + self.solo_hits_after_game, font=("Arial", 20))
         self.solo_total_hits_var_label.pack(side='left', padx=10)
 
         # Player1 Total miss statisztika 
@@ -1141,16 +1157,142 @@ class TrackerWindow(ctk.CTk):
         self.solo_total_miss_stat_frame.pack(pady=0, fill="x")
         self.solo_total_miss_stat_label = ctk.CTkLabel(self.solo_total_miss_stat_frame, text="Total misses:", font=("Arial", 20))
         self.solo_total_miss_stat_label.pack(side='left', padx=10)
-        self.solo_total_miss_var_label = ctk.CTkLabel(self.solo_total_miss_stat_frame, text="MISS VAR", font=("Arial", 20))
+        self.solo_total_miss_var_label = ctk.CTkLabel(self.solo_total_miss_stat_frame, text=self.solo_miss + self.solo_miss_after_game, font=("Arial", 20))
         self.solo_total_miss_var_label.pack(side='left', padx=10)
+
+        # Player1 Dupla statisztika 
+        self.solo_double_stat_frame = ctk.CTkFrame(self.solo_player_frame)
+        self.solo_double_stat_frame.pack(pady=0, fill="x")
+        self.solo_double_stat_label = ctk.CTkLabel(self.solo_double_stat_frame, text="Doubles:", font=("Arial", 20))
+        self.solo_double_stat_label.pack(side='left', padx=10)
+        self.solo_double_var_label = ctk.CTkLabel(self.solo_double_stat_frame, text=self.solo_double + self.solo_double_after_game, font=("Arial", 20))
+        self.solo_double_var_label.pack(side='left', padx=10)
 
         # Player1 Total percentage statisztika 
         self.solo_total_percentage_stat_frame = ctk.CTkFrame(self.solo_player_frame)
         self.solo_total_percentage_stat_frame.pack(pady=0, fill="x")
         self.solo_total_percentage_stat_label = ctk.CTkLabel(self.solo_total_percentage_stat_frame, text="Total percentage:", font=("Arial", 20))
         self.solo_total_percentage_stat_label.pack(side='left', padx=10)
-        self.solo_total_percentage_var_label = ctk.CTkLabel(self.solo_total_percentage_stat_frame, text=f'{self.calculate_percentage(1, 1)}%', font=("Arial", 20)) # TODO
+        self.solo_total_percentage_var_label = ctk.CTkLabel(self.solo_total_percentage_stat_frame, text=f'{self.calculate_percentage(self.solo_hits + self.solo_hits_after_game, self.solo_total_throws + self.solo_total_throws_after_game)}%', font=("Arial", 20))
         self.solo_total_percentage_var_label.pack(side='left', padx=10)
+
+
+    # Solo hit funkció
+    def solo_hit_function(self):
+        self.solo_total_throws += 1
+        self.solo_hits += 1
+        self.solo_cups_left -= 1
+        self.solo_throw_without_miss += 1
+
+        if self.solo_first_throw == False:
+            self.solo_first_throw = True
+        elif self.solo_second_throw == False:
+            self.solo_second_throw = True
+        elif self.solo_throw_without_miss == 3 and self.solo_third_throw == False:
+            self.solo_double += 1
+            self.solo_triple += 1
+            self.solo_round += 1
+            self.solo_throw_without_miss = 0
+            self.solo_first_throw = False
+            self.solo_second_throw = False
+
+        self.solo_update_labels()
+
+
+    # Solo miss funkció
+    def solo_miss_function(self):
+        self.solo_total_throws += 1
+        self.solo_miss += 1
+        self.solo_throw_without_miss = 0
+
+        if self.solo_first_throw == False:
+            self.solo_first_throw = True
+            self.solo_update_labels()
+            return
+        elif self.solo_second_throw == False:
+            self.solo_second_throw = True
+            self.solo_round += 1
+        elif self.solo_third_throw == False:
+            self.solo_third_throw = True
+            self.solo_double += 1
+            self.solo_round += 1
+
+        self.solo_first_throw = False
+        self.solo_second_throw = False
+        self.solo_third_throw = False
+        self.solo_update_labels()
+
+
+    # Solo játékban a labelek frissítése minden dobás után
+    def solo_update_labels(self):
+        self.solo_total_throws_var_label.configure(text=self.solo_total_throws + self.solo_total_throws_after_game)
+        self.solo_total_hits_var_label.configure(text=self.solo_hits + self.solo_hits_after_game)
+        self.solo_total_miss_var_label.configure(text=self.solo_miss + self.solo_miss_after_game)
+        self.solo_double_var_label.configure(text=self.solo_double + self.solo_double_after_game)
+        self.solo_player_score_label.configure(text=self.solo_cups_left)
+        self.solo_total_percentage_var_label.configure(text=f'{self.calculate_percentage(self.solo_hits + self.solo_hits_after_game, self.solo_total_throws + self.solo_total_throws_after_game)}%')
+
+        # Csekkoljuk, hogy véget ért-e a játék
+        self.solo_check_end_game()
+
+
+    # Solo játék vége
+    def solo_check_end_game(self):
+        # Ha a poharak száma elérte a 0-t akkor a játék véget ér
+        if self.solo_cups_left == 0:
+            self.solo_top_frame.pack_forget()
+            self.solo_player_frame.pack_forget()
+            self.solo_stat_frame.pack_forget()
+
+            # Eredmények elmentése adatbázisba
+            current_date = datetime.date.today()
+            self.database.add_match(self.solo_player, 'solo', self.solo_total_throws, self.solo_hits, self.solo_miss, self.solo_double, self.calculate_percentage(self.solo_hits, self.solo_total_throws), current_date)
+
+            # Uj ablak generalasa a játék végi menühöz
+            self.geometry('500x200')
+            # Győztes nevének kiírása
+            self.solo_end_game_label = ctk.CTkLabel(self, text=f'A játék véget ért', font=("Arial", 26))
+            self.solo_end_game_label.pack(pady=20)
+
+            # Gombok a játék kezelésére
+            self.solo_end_button_frame = ctk.CTkFrame(self)
+            self.solo_end_button_frame.pack(pady=10)
+
+            new_game_solo_end_button = ctk.CTkButton(self.solo_end_button_frame, text="New Game", command=lambda: self.solo_start_new_game('new game'), height=50)
+            new_game_solo_end_button.pack(side="left", padx=10)
+
+            continue_solo_end_button = ctk.CTkButton(self.solo_end_button_frame, text="Continue", command=lambda: self.solo_start_new_game('continue'), height=50)
+            continue_solo_end_button.pack(side="left", padx=10)
+
+
+    # Solo új játék
+    def solo_start_new_game(self, option):
+        
+        # Ha teljes új játék
+        if option != 'continue':
+            self.solo_end_game_label.pack_forget()
+            self.solo_end_button_frame.pack_forget()
+            self.solo_tracker_window()
+
+        # Ha pedig folytatás
+        else:
+            # Jelenlegi widgetek eltüntetése
+            self.solo_end_game_label.pack_forget()
+            self.solo_end_button_frame.pack_forget()
+
+            # Változók átmentése a játék utáni változókba
+            self.solo_tracker_window(
+                throws=self.solo_total_throws + self.solo_total_throws_after_game,
+                hits=self.solo_hits + self.solo_hits_after_game,
+                miss=self.solo_miss + self.solo_miss_after_game,
+                double=self.solo_double + self.solo_double_after_game,
+                triple=self.solo_triple + self.solo_triple_after_game 
+            )
+
+
+    
+
+
 
 
 
@@ -1282,9 +1424,37 @@ class ScoreWindow(ctk.CTk):
     def search_scores(self):
         player = self.score_player_combobox.get()
         game_mode = self.score_game_mode_combobox.get().lower()
-        print(player, game_mode)
+        
+        statistics = self.database.get_player_match_data(player, game_mode) # Összes statisztika lekérése
+        best_percentage = None # Globális változó hogy megkeressük a legjobb meccsét
+        best_match_id = None
+        # Szétszedés és megjelenítés meccsenként
+        for statistic in statistics:
+            total_throws = statistic[3]
+            total_hits = statistic[4]
+            total_misses = statistic[5]
+            percentage = f"{statistic[7]}%"
+            self.score_tree.insert('', tk.END, values=(player ,total_throws, total_hits, total_misses, percentage))
 
+            # Ha a változóban nincs még eredmény elmentjük az elsőt, utána meg ha nagyobb a jelenlegi iterácóban levő, akkor felülírjuk
+            if best_percentage == None:
+                best_percentage = statistic[7]
+                best_match_id = statistic[0]
+            elif statistic[7] > best_percentage:
+                best_percentage = statistic[7]
+                best_match_id = statistic[0]
+
+        best_match_data = self.database.get_best_match_data(best_match_id)
+
+        # Ha több megegyező százalékos meccset kapunk vissza, megjelenítjük a leglesőt
+        best_match_data = best_match_data[0]
+        print(f"Dobások száma:{best_match_data[3]}, Százalék: {best_match_data[7]}%")
+
+        
             
+        
+
+    
 
 
 

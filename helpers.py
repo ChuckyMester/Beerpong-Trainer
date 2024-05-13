@@ -15,4 +15,4 @@ def decide_logo_by_system():
         
         # MacOS
         case 'Darwin':
-            return 'assets/beerpong.icns'
+            return 'assets/beer-pong.icns'

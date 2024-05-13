@@ -60,6 +60,21 @@ class Database():
         self.cursor.execute('SELECT id FROM players WHERE name = ?', (name,))
         result = self.cursor.fetchone()
         return result[0] if result else None
+    
+
+    # Kiválasztjuk az összes adatot a megfelelő névhez és játékmódhoz
+    def get_player_match_data(self, player_name, game_mode):
+        player_id = self.get_player_id_by_name(player_name)
+        self.cursor.execute("SELECT * FROM matches WHERE player_id = ? AND mode = ?", (player_id, game_mode))
+        results = self.cursor.fetchall()
+        return results
+    
+
+    # Legjobb meccs lekérése percentage alapján
+    def get_best_match_data(self, match_id):
+        self.cursor.execute("SELECT * FROM matches WHERE match_id = ?", (match_id,))
+        results = self.cursor.fetchall()
+        return results
 
 
     # Adatbázis kapcsolat bezárása
