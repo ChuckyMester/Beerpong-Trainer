@@ -32,6 +32,7 @@ class Database():
                 hits INTEGER,
                 misses INTEGER,
                 doubles INTEGER,
+                triples INTEGER,
                 percentage TEXT,
                 date TEXT,
                 FOREIGN KEY(player_id) REFERENCES players(id)
@@ -40,7 +41,7 @@ class Database():
         self.connection.commit()
 
     # Egy jatekos meccsenek talahoz adasa
-    def add_match(self, player_name, mode, throws, hits, misses, doubles, percentage, date):
+    def add_match(self, player_name, mode, throws, hits, misses, doubles, triples, percentage, date):
 
         player_id = self.get_player_id_by_name(player_name)
 
@@ -48,9 +49,9 @@ class Database():
             return "Player not found"
         
         self.cursor.execute('''
-            INSERT INTO matches (player_id, mode, throws, hits, misses, doubles, percentage, date)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-        ''', (player_id, mode, throws, hits, misses, doubles, percentage, date))
+            INSERT INTO matches (player_id, mode, throws, hits, misses, doubles, triples, percentage, date)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ''', (player_id, mode, throws, hits, misses, doubles, triples, percentage, date))
         self.connection.commit()
 
 
