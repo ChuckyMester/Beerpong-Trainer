@@ -91,6 +91,15 @@ class Database():
         player_id = self.cursor.fetchone()
         name = self.get_player_name_by_id(player_id[0])
         return name
+    
+
+    # Solo jatekmodban a jelenlegi jatekos legjobb meccsenek lekerese
+    def get_record_for_actual_player(self, name):
+        player_id = self.get_player_id_by_name(name)
+        game_mode = 'solo'
+        self.cursor.execute("SELECT * FROM matches WHERE mode = ? and player_id = ?  ORDER BY percentage DESC LIMIT 1", (game_mode, player_id))
+        match_data = self.cursor.fetchone()
+        return match_data
 
 
     # Adatbázis kapcsolat bezárása

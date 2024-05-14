@@ -1250,6 +1250,59 @@ class TrackerWindow(ctk.CTk):
         self.solo_total_percentage_var_label = ctk.CTkLabel(self.solo_total_percentage_stat_frame, text=f'{self.calculate_percentage(self.solo_hits + self.solo_hits_after_game, self.solo_total_throws + self.solo_total_throws_after_game)}%', font=("Arial", 20))
         self.solo_total_percentage_var_label.pack(side='left', padx=10)
 
+        # Statisztika kerethez tartozok labelek
+        # Jatekos legjobb meccsenek lekerese
+        try:
+            best_match = self.database.get_record_for_actual_player(self.solo_player)
+            total_throws = best_match[3]
+            total_hits = best_match[4]
+            total_miss = best_match[5]
+            doubles = best_match[6]
+            triples = best_match[7]
+            percentage = best_match[8]
+            date = best_match[9]
+        except:
+            total_throws = f"No data for {self.solo_player}"
+            total_hits = f"No data for {self.solo_player}"
+            total_miss = f"No data for {self.solo_player}"
+            doubles = f"No data for {self.solo_player}"
+            triples = f"No data for {self.solo_player}"
+            percentage = f"No data for {self.solo_player}"
+            date = f"No data for {self.solo_player}"
+
+
+        # Legfelso label
+        self.solo_statistic_title = ctk.CTkLabel(self.solo_stat_frame, text=f"{self.solo_player} legjobb jateka", font=("Arial", 26))
+        self.solo_statistic_title.pack(padx=5, pady=(7, 15))
+
+        # Osszes dobas
+        self.solo_statistic_throws = ctk.CTkLabel(self.solo_stat_frame, text=f"Osszes dobas: {total_throws}", font=("Arial", 22))
+        self.solo_statistic_throws.pack(padx=5, pady=7, anchor='w')
+
+        # Osszes Hit
+        self.solo_statistic_hits = ctk.CTkLabel(self.solo_stat_frame, text=f"Osszes Hit: {total_hits}", font=("Arial", 22))
+        self.solo_statistic_hits.pack(padx=5, pady=7, anchor='w')
+
+        # Osszes Miss
+        self.solo_statistic_miss = ctk.CTkLabel(self.solo_stat_frame, text=f"Osszes Miss: {total_miss}", font=("Arial", 22))
+        self.solo_statistic_miss.pack(padx=5, pady=7, anchor='w')
+
+        # Osszes Dupla
+        self.solo_statistic_double = ctk.CTkLabel(self.solo_stat_frame, text=f"Dupla: {doubles}", font=("Arial", 22))
+        self.solo_statistic_double.pack(padx=5, pady=7, anchor='w')
+
+        # Osszes Tripla
+        self.solo_statistic_triple = ctk.CTkLabel(self.solo_stat_frame, text=f"Tripla: {triples}", font=("Arial", 22))
+        self.solo_statistic_triple.pack(padx=5, pady=7, anchor='w')
+
+        # Percentage
+        self.solo_statistic_percentage = ctk.CTkLabel(self.solo_stat_frame, text=f"Szazalek: {percentage}%", font=("Arial", 22))
+        self.solo_statistic_percentage.pack(padx=5, pady=7, anchor='w')
+
+        # Jatszotta
+        self.solo_statistic_date = ctk.CTkLabel(self.solo_stat_frame, text=f"Jatszotta: {date}", font=("Arial", 22))
+        self.solo_statistic_date.pack(padx=5, pady=7, anchor='w')              
+
 
     # Solo hit funkció
     def solo_hit_function(self):
