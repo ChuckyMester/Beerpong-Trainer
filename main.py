@@ -1261,7 +1261,7 @@ class TrackerWindow(ctk.CTk):
             triples = best_match[7]
             percentage = best_match[8]
             date = best_match[9]
-        except:
+        except: # Ha esetleg meg nem lenne adat rendelve az adott jatekoshoz, es errort dobna az sql query
             total_throws = f"No data for {self.solo_player}"
             total_hits = f"No data for {self.solo_player}"
             total_miss = f"No data for {self.solo_player}"
