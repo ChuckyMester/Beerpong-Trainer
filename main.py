@@ -1148,7 +1148,6 @@ class TrackerWindow(ctk.CTk):
         self.geometry('690x430')
 
         # Valtozok a jatekhoz
-        self.solo_player_record_name = "NAME"
         self.solo_player = self.player1_var.get()
         self.solo_cups_left = 10
         self.solo_total_throws = 0
@@ -1173,8 +1172,13 @@ class TrackerWindow(ctk.CTk):
         self.solo_top_frame.pack(pady=10, fill="x")
 
         # Jelenlegi rekordtarto label
-        self.solo_current_record_player = ctk.CTkLabel(self.solo_top_frame, text=f"Jelenlegi rekordot tartja: {self.solo_player_record_name}", font=("Arial", 24))
-        self.solo_current_record_player.pack(side='left', padx=(200,0))
+        try:
+            self.solo_player_record_name = self.database.get_record_holder_player('solo')
+            self.solo_current_record_player = ctk.CTkLabel(self.solo_top_frame, text=f"Jelenlegi rekordot tartja: {self.solo_player_record_name}", font=("Arial", 24))
+            self.solo_current_record_player.pack(side='left', padx=(200,0))
+        except TypeError:
+            self.solo_current_record_player = ctk.CTkLabel(self.solo_top_frame, text=f"Elso jatek: Nincs rekordtarto", font=("Arial", 24))
+            self.solo_current_record_player.pack(side='left', padx=(200,0))
 
         # Player keret
         self.solo_player_frame = ctk.CTkFrame(self, width=240, height=100)
@@ -1317,7 +1321,7 @@ class TrackerWindow(ctk.CTk):
 
             # Eredmények elmentése adatbázisba
             current_date = datetime.date.today()
-            self.database.add_match(self.solo_player, 'solo', self.solo_total_throws, self.solo_hits, self.solo_miss, self.solo_double, self.calculate_percentage(self.solo_hits, self.solo_total_throws), current_date)
+            self.database.add_match(self.solo_player, 'solo', self.solo_total_throws, self.solo_hits, self.solo_miss, self.solo_double, self.solo_triple, self.calculate_percentage(self.solo_hits, self.solo_total_throws), current_date)
 
             # Uj ablak generalasa a játék végi menühöz
             self.geometry('500x200')

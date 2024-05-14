@@ -63,6 +63,13 @@ class Database():
         return result[0] if result else None
     
 
+    def get_player_name_by_id(self, id):
+        self.cursor.execute('SELECT name FROM players WHERE id = ?', (id,))
+        result = self.cursor.fetchone()
+        return result[0] if result else None
+
+    
+
     # Kiválasztjuk az összes adatot a megfelelő névhez és játékmódhoz
     def get_player_match_data(self, player_name, game_mode):
         player_id = self.get_player_id_by_name(player_name)
@@ -76,6 +83,14 @@ class Database():
         self.cursor.execute("SELECT * FROM matches WHERE match_id = ?", (match_id,))
         results = self.cursor.fetchall()
         return results
+    
+
+    # A solo jatekmodban a rekordot tarto jatekos nevenek lekerese
+    def get_record_holder_player(self, game_mode):
+        self.cursor.execute("SELECT player_id FROM matches WHERE mode = ? ORDER BY percentage DESC LIMIT 1", (game_mode,))
+        player_id = self.cursor.fetchone()
+        name = self.get_player_name_by_id(player_id[0])
+        return name
 
 
     # Adatbázis kapcsolat bezárása
