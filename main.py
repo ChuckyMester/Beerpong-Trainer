@@ -278,6 +278,13 @@ class TrackerWindow(ctk.CTk):
             if len({self.player1_var.get(), self.player2_var.get(), self.player3_var.get(), self.player4_var.get()}) < 4:
                 messagebox.showerror("Error", "The 2 players can't be the same!")
                 return
+            
+        if game_mode == 'solo':    
+            # Solo jatekmodban ha nem valasztottunk jatekost
+            if not self.player1_var.get():
+                messagebox.showerror("Error", "You need to choose a player!")
+                print(self.player1_var.get())
+                return
 
         # Eddig hasznalt widgetek eltuntese
         self.player1_label.pack_forget()
@@ -1301,7 +1308,11 @@ class TrackerWindow(ctk.CTk):
 
         # Jatszotta
         self.solo_statistic_date = ctk.CTkLabel(self.solo_stat_frame, text=f"Jatszotta: {date}", font=("Arial", 22))
-        self.solo_statistic_date.pack(padx=5, pady=7, anchor='w')              
+        self.solo_statistic_date.pack(padx=5, pady=7, anchor='w')
+
+        # Shortcut gombok bevezetese
+        self.bind('<Key-h>', self.solo_handle_keypress)
+        self.bind('<Key-m>', self.solo_handle_keypress)              
 
 
     # Solo hit funkció
@@ -1418,6 +1429,16 @@ class TrackerWindow(ctk.CTk):
             )
 
 
+    # Solo gyorsgombok elbiralasa
+    def solo_handle_keypress(self, event):
+        match event.keysym:
+            # Ha a h betut nyomjak le
+            case 'h':
+                self.solo_hit_function()
+
+            # Ha az m betut nyomjak le    
+            case 'm':
+                self.solo_miss_function()
     
 
 
