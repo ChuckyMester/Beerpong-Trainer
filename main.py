@@ -1445,7 +1445,7 @@ class TrackerWindow(ctk.CTk):
             self.database.add_match(self.solo_player, 'solo', self.solo_total_throws, self.solo_hits, self.solo_miss, self.solo_double, self.solo_triple, self.calculate_percentage(self.solo_hits, self.solo_total_throws), current_date)
 
             # Uj ablak generalasa a játék végi menühöz
-            self.geometry('500x200')
+            self.geometry('500x420')
             # Győztes nevének kiírása
             self.solo_end_game_label = ctk.CTkLabel(self, text=f'A játék véget ért', font=("Arial", 26))
             self.solo_end_game_label.pack(pady=20)
@@ -1459,6 +1459,34 @@ class TrackerWindow(ctk.CTk):
 
             continue_solo_end_button = ctk.CTkButton(self.solo_end_button_frame, text="Continue", command=lambda: self.solo_start_new_game('continue'), height=50)
             continue_solo_end_button.pack(side="left", padx=10)
+
+            stat_end_label = ctk.CTkLabel(self, text="End game statistics:", font=("Arial", 26))
+            stat_end_label.pack(pady=(20, 7), fill="x")
+
+            # Player1 endgame statisztika
+            left_stat_frame = ctk.CTkFrame(self, width=240)
+            left_stat_frame.pack(side="left", padx=10, fill="both", expand=True)
+
+            player_total_name_stat_label = ctk.CTkLabel(left_stat_frame, text=f"{self.solo_player}", font=("Arial", 24))
+            player_total_name_stat_label.pack(padx=10, pady=(4,10))
+
+            player_total_throws_stat_label = ctk.CTkLabel(left_stat_frame, text=f"Total throws: {self.solo_total_throws}", font=("Arial", 20))
+            player_total_throws_stat_label.pack(padx=10, anchor='w')
+
+            player_total_hits_stat_label = ctk.CTkLabel(left_stat_frame, text=f"Total hits: {self.solo_hits}", font=("Arial", 20))
+            player_total_hits_stat_label.pack(padx=10, anchor='w')
+            
+            player_total_miss_stat_label = ctk.CTkLabel(left_stat_frame, text=f"Total miss: {self.solo_miss}", font=("Arial", 20))
+            player_total_miss_stat_label.pack(padx=10, anchor='w')
+
+            player_total_double_stat_label = ctk.CTkLabel(left_stat_frame, text=f"Doubles: {self.solo_double}", font=("Arial", 20))
+            player_total_double_stat_label.pack(padx=10, anchor='w')
+
+            player_total_triple_stat_label = ctk.CTkLabel(left_stat_frame, text=f"Triples: {self.solo_triple}", font=("Arial", 20))
+            player_total_triple_stat_label.pack(padx=10, anchor='w')
+
+            player_total_percentage_stat_label = ctk.CTkLabel(left_stat_frame, text=f"Percentage: {self.calculate_percentage(self.solo_hits, self.solo_total_throws)}%", font=("Arial", 20))
+            player_total_percentage_stat_label.pack(padx=10, anchor='w')
 
 
     # Solo új játék
