@@ -62,7 +62,7 @@ class PlayerWindow(ctk.CTk):
         def __init__(self, parent):
             super().__init__()
             self.title('Player Management')
-            self.geometry('500x500')
+            self.geometry('600x500')
             # Icon used from: https://www.flaticon.com
             self.iconbitmap(helpers.decide_logo_by_system())
 
@@ -93,7 +93,7 @@ class PlayerWindow(ctk.CTk):
             add_one_v_one_end_button = ctk.CTkButton(self, text='Add Player', command=self.add_player)
             add_one_v_one_end_button.pack(pady=5)
 
-            delete_one_v_one_end_button = ctk.CTkButton(self, text='Delete Player', command=self.delete_player)
+            delete_one_v_one_end_button = ctk.CTkButton(self, text='Delete Player', command=self.delete_confirmation)
             delete_one_v_one_end_button.pack(pady=5)
 
             # Jatekosok mutatasa
@@ -122,15 +122,54 @@ class PlayerWindow(ctk.CTk):
                     self.database.connection.commit()
                     self.show_players()
 
+                    slide_panel_color = '#00A621'
+                    slide_panel = helpers.SlidePanel(self, 1.0, 0.7, slide_panel_color) # Slide panel object
+                    slide_message = ctk.CTkLabel(slide_panel, text='Player added successfully', fg_color=slide_panel_color, text_color='black').pack(expand=True, fill='both', padx=2, pady=10)
+                    slide_panel.animate()
+
+
+        #  Torles megeositese
+        def delete_confirmation(self):
+            
+            # Ha nincs senki kivalasztva nem tortenik semmi
+            if len(self.player_tree.selection()) == 0:
+                return
+
+            # Megerősítő ablak létrehozása
+            confirmation_window = ctk.CTkToplevel(app)
+            confirmation_window.geometry("400x150")
+            confirmation_window.title("Confirm Deletion")
+            
+            # Megerősítő üzenet
+            confirmation_label = ctk.CTkLabel(confirmation_window, text="This will delete all matches data for this player! Are you sure?", font=("Arial", 14))
+            confirmation_label.pack(pady=20)
+            
+            # Gombok a megerősítő ablakban
+            button_frame = ctk.CTkFrame(confirmation_window)
+            button_frame.pack(pady=10)
+            
+            confirm_button = ctk.CTkButton(button_frame, text="Yes", command=lambda: self.delete_player(confirmation_window))
+            confirm_button.pack(side="left", padx=10)
+            
+            cancel_button = ctk.CTkButton(button_frame, text="No", command=confirmation_window.destroy)
+            cancel_button.pack(side="left", padx=10)
+
          
         # Elem torlese a Treeview-bol
-        def delete_player(self):
+        def delete_player(self, window):
+            window.destroy() # Megerosito ablak eltuntetese
             selected_item = self.player_tree.selection()
             if selected_item:
                 player_name = self.player_tree.item(selected_item, "values")[0]  # A név kivétele
-                self.database.cursor.execute("DELETE FROM players WHERE name=?", (player_name,))
+                self.database.delete_player_data(player_name) # Kitoroljuk a jatekoshoz tartozo osszes adatot
+                self.database.cursor.execute("DELETE FROM players WHERE name=?", (player_name,)) # Kitoroljuk a jatekost az adatbazisbol
                 self.database.connection.commit()
                 self.player_tree.delete(selected_item)
+
+                slide_panel_color = '#B80003'
+                slide_panel = helpers.SlidePanel(self, 1.0, 0.7, slide_panel_color) # Slide panel object
+                slide_message = ctk.CTkLabel(slide_panel, text='Player deleted successfully', fg_color=slide_panel_color, text_color='black').pack(expand=True, fill='both', padx=2, pady=10)
+                slide_panel.animate()
         
 
 

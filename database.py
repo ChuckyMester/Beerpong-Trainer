@@ -14,7 +14,7 @@ class Database():
     def create_players_table(self):
         self.cursor.execute('''
             CREATE TABLE IF NOT EXISTS players (
-                id INTEGER PRIMARY KEY,
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
                 name TEXT
             )
         ''')
@@ -100,8 +100,18 @@ class Database():
         self.cursor.execute("SELECT * FROM matches WHERE mode = ? and player_id = ?  ORDER BY percentage DESC LIMIT 1", (game_mode, player_id))
         match_data = self.cursor.fetchone()
         return match_data
+    
+
+    # Toroljuk a torolt jatekos osszes adatat a matches tablabol
+    def delete_player_data(self, name):
+        player_id = self.get_player_id_by_name(name)
+        print(player_id)
+        self.cursor.execute("DELETE FROM matches WHERE player_id = ?", (player_id,))
+        self.connection.commit()
+
 
 
     # Adatbázis kapcsolat bezárása
     def close(self):
         self.connection.close()
+        
