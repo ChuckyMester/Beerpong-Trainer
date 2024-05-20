@@ -1027,15 +1027,15 @@ class TrackerWindow(ctk.CTk):
                 continue_one_v_one_end_button = ctk.CTkButton(self.one_v_one_end_button_frame, text="Continue", command=self.one_v_one_continue_game, height=50)
                 continue_one_v_one_end_button.pack(side="left", padx=10)
 
-                stat_end_label = ctk.CTkLabel(self, text="End game statistics:", font=("Arial", 26))
-                stat_end_label.pack(pady=(20, 4), fill="x")
+                self.one_v_one_stat_end_label = ctk.CTkLabel(self, text="End game statistics:", font=("Arial", 26))
+                self.one_v_one_stat_end_label.pack(pady=(20, 4), fill="x")
 
                 # Két keret létrehozása a gombok alatt
-                stat_frames_container = ctk.CTkFrame(self)
-                stat_frames_container.pack(pady=20, fill="x")
+                self.one_v_one_end_stat_frames_container = ctk.CTkFrame(self)
+                self.one_v_one_end_stat_frames_container.pack(pady=20, fill="x")
 
                 # Player1 endgame statisztika
-                left_stat_frame = ctk.CTkFrame(stat_frames_container, width=240)
+                left_stat_frame = ctk.CTkFrame(self.one_v_one_end_stat_frames_container, width=240)
                 left_stat_frame.pack(side="left", padx=10, fill="both", expand=True)
 
                 player1_total_name_stat_label = ctk.CTkLabel(left_stat_frame, text=f"{self.one_v_one_player1}", font=("Arial", 24))
@@ -1060,7 +1060,7 @@ class TrackerWindow(ctk.CTk):
                 player1_total_percentage_stat_label.pack(padx=10, anchor='w')
 
                 # Player2 endgame statisztika
-                right_stat_frame = ctk.CTkFrame(stat_frames_container, width=240)
+                right_stat_frame = ctk.CTkFrame(self.one_v_one_end_stat_frames_container, width=240)
                 right_stat_frame.pack(side="left", padx=10, fill="both", expand=True)
 
                 player2_total_name_stat_label = ctk.CTkLabel(right_stat_frame, text=f"{self.one_v_one_player2}", font=("Arial", 24))
@@ -1196,6 +1196,8 @@ class TrackerWindow(ctk.CTk):
         # Jelenlegi widgeteket eltuntetjuk
         self.one_v_one_winner_label.pack_forget()
         self.one_v_one_end_button_frame.pack_forget()
+        self.one_v_one_end_stat_frames_container.pack_forget()
+        self.one_v_one_stat_end_label.pack_forget()
 
         # Ujra meghivtjuk a tracker window methodot
         self.one_v_one_tracker_window(self.one_v_one_player2, self.one_v_one_player1)
@@ -1207,6 +1209,8 @@ class TrackerWindow(ctk.CTk):
         # Jelenlegi widgeteket eltuntetjuk
         self.one_v_one_winner_label.pack_forget()
         self.one_v_one_end_button_frame.pack_forget()
+        self.one_v_one_end_stat_frames_container.pack_forget()
+        self.one_v_one_stat_end_label.pack_forget()
 
         # Valtozok beallitasa
         # A jatek logikajahoz szukseges valtozokat athelyezzuk csak tarolasra hasznalt valtozoba (Fontos hogy majd keresztbe adjuk az adatokat, mert masik jatekos lesz a kezdojatekos)
@@ -1499,32 +1503,32 @@ class TrackerWindow(ctk.CTk):
             continue_solo_end_button = ctk.CTkButton(self.solo_end_button_frame, text="Continue", command=lambda: self.solo_start_new_game('continue'), height=50)
             continue_solo_end_button.pack(side="left", padx=10)
 
-            stat_end_label = ctk.CTkLabel(self, text="End game statistics:", font=("Arial", 26))
-            stat_end_label.pack(pady=(20, 7), fill="x")
+            self.solo_stat_end_label = ctk.CTkLabel(self, text="End game statistics:", font=("Arial", 26))
+            self.solo_stat_end_label.pack(pady=(20, 7), fill="x")
 
             # Player1 endgame statisztika
-            left_stat_frame = ctk.CTkFrame(self, width=240)
-            left_stat_frame.pack(side="left", padx=10, fill="both", expand=True)
+            self.solo_stat_end_frame = ctk.CTkFrame(self, width=240)
+            self.solo_stat_end_frame.pack(side="left", padx=10, fill="both", expand=True)
 
-            player_total_name_stat_label = ctk.CTkLabel(left_stat_frame, text=f"{self.solo_player}", font=("Arial", 24))
+            player_total_name_stat_label = ctk.CTkLabel(self.solo_stat_end_frame, text=f"{self.solo_player}", font=("Arial", 24))
             player_total_name_stat_label.pack(padx=10, pady=(4,10))
 
-            player_total_throws_stat_label = ctk.CTkLabel(left_stat_frame, text=f"Total throws: {self.solo_total_throws}", font=("Arial", 20))
+            player_total_throws_stat_label = ctk.CTkLabel(self.solo_stat_end_frame, text=f"Total throws: {self.solo_total_throws}", font=("Arial", 20))
             player_total_throws_stat_label.pack(padx=10, anchor='w')
 
-            player_total_hits_stat_label = ctk.CTkLabel(left_stat_frame, text=f"Total hits: {self.solo_hits}", font=("Arial", 20))
+            player_total_hits_stat_label = ctk.CTkLabel(self.solo_stat_end_frame, text=f"Total hits: {self.solo_hits}", font=("Arial", 20))
             player_total_hits_stat_label.pack(padx=10, anchor='w')
             
-            player_total_miss_stat_label = ctk.CTkLabel(left_stat_frame, text=f"Total miss: {self.solo_miss}", font=("Arial", 20))
+            player_total_miss_stat_label = ctk.CTkLabel(self.solo_stat_end_frame, text=f"Total miss: {self.solo_miss}", font=("Arial", 20))
             player_total_miss_stat_label.pack(padx=10, anchor='w')
 
-            player_total_double_stat_label = ctk.CTkLabel(left_stat_frame, text=f"Doubles: {self.solo_double}", font=("Arial", 20))
+            player_total_double_stat_label = ctk.CTkLabel(self.solo_stat_end_frame, text=f"Doubles: {self.solo_double}", font=("Arial", 20))
             player_total_double_stat_label.pack(padx=10, anchor='w')
 
-            player_total_triple_stat_label = ctk.CTkLabel(left_stat_frame, text=f"Triples: {self.solo_triple}", font=("Arial", 20))
+            player_total_triple_stat_label = ctk.CTkLabel(self.solo_stat_end_frame, text=f"Triples: {self.solo_triple}", font=("Arial", 20))
             player_total_triple_stat_label.pack(padx=10, anchor='w')
 
-            player_total_percentage_stat_label = ctk.CTkLabel(left_stat_frame, text=f"Percentage: {self.calculate_percentage(self.solo_hits, self.solo_total_throws)}%", font=("Arial", 20))
+            player_total_percentage_stat_label = ctk.CTkLabel(self.solo_stat_end_frame, text=f"Percentage: {self.calculate_percentage(self.solo_hits, self.solo_total_throws)}%", font=("Arial", 20))
             player_total_percentage_stat_label.pack(padx=10, anchor='w')
 
 
@@ -1535,6 +1539,8 @@ class TrackerWindow(ctk.CTk):
         if option != 'continue':
             self.solo_end_game_label.pack_forget()
             self.solo_end_button_frame.pack_forget()
+            self.solo_stat_end_label.pack_forget()
+            self.solo_stat_end_frame.pack_forget()
             self.solo_tracker_window()
 
         # Ha pedig folytatás
@@ -1542,6 +1548,8 @@ class TrackerWindow(ctk.CTk):
             # Jelenlegi widgetek eltüntetése
             self.solo_end_game_label.pack_forget()
             self.solo_end_button_frame.pack_forget()
+            self.solo_stat_end_label.pack_forget()
+            self.solo_stat_end_frame.pack_forget()
 
             # Változók átmentése a játék utáni változókba
             self.solo_tracker_window(
