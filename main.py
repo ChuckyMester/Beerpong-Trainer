@@ -1035,53 +1035,53 @@ class TrackerWindow(ctk.CTk):
                 self.one_v_one_end_stat_frames_container.pack(pady=20, fill="x")
 
                 # Player1 endgame statisztika
-                left_stat_frame = ctk.CTkFrame(self.one_v_one_end_stat_frames_container, width=240)
-                left_stat_frame.pack(side="left", padx=10, fill="both", expand=True)
+                self.one_v_one_left_end_stat_frame = ctk.CTkFrame(self.one_v_one_end_stat_frames_container, width=240)
+                self.one_v_one_left_end_stat_frame.pack(side="left", padx=10, fill="both", expand=True)
 
-                player1_total_name_stat_label = ctk.CTkLabel(left_stat_frame, text=f"{self.one_v_one_player1}", font=("Arial", 24))
+                player1_total_name_stat_label = ctk.CTkLabel(self.one_v_one_left_end_stat_frame, text=f"{self.one_v_one_player1}", font=("Arial", 24))
                 player1_total_name_stat_label.pack(padx=10, pady=(4,10))
 
-                player1_total_throws_stat_label = ctk.CTkLabel(left_stat_frame, text=f"Total throws: {self.one_v_one_player1_total_throws + self.one_v_one_player1_throw_before_overtime}", font=("Arial", 20))
+                player1_total_throws_stat_label = ctk.CTkLabel(self.one_v_one_left_end_stat_frame, text=f"Total throws: {self.one_v_one_player1_total_throws + self.one_v_one_player1_throw_before_overtime}", font=("Arial", 20))
                 player1_total_throws_stat_label.pack(padx=10, anchor='w')
 
-                player1_total_hits_stat_label = ctk.CTkLabel(left_stat_frame, text=f"Total hits: {self.one_v_one_player1_total_hits}", font=("Arial", 20))
+                player1_total_hits_stat_label = ctk.CTkLabel(self.one_v_one_left_end_stat_frame, text=f"Total hits: {self.one_v_one_player1_total_hits}", font=("Arial", 20))
                 player1_total_hits_stat_label.pack(padx=10, anchor='w')
                 
-                player1_total_miss_stat_label = ctk.CTkLabel(left_stat_frame, text=f"Total miss: {self.one_v_one_player1_total_miss}", font=("Arial", 20))
+                player1_total_miss_stat_label = ctk.CTkLabel(self.one_v_one_left_end_stat_frame, text=f"Total miss: {self.one_v_one_player1_total_miss}", font=("Arial", 20))
                 player1_total_miss_stat_label.pack(padx=10, anchor='w')
 
-                player1_total_double_stat_label = ctk.CTkLabel(left_stat_frame, text=f"Doubles: {self.one_v_one_player1_doubles + self.one_v_one_player1_double_before_overtime}", font=("Arial", 20))
+                player1_total_double_stat_label = ctk.CTkLabel(self.one_v_one_left_end_stat_frame, text=f"Doubles: {self.one_v_one_player1_doubles + self.one_v_one_player1_double_before_overtime}", font=("Arial", 20))
                 player1_total_double_stat_label.pack(padx=10, anchor='w')
 
-                player1_total_triple_stat_label = ctk.CTkLabel(left_stat_frame, text=f"Triples: {self.one_v_one_player1_triple}", font=("Arial", 20))
+                player1_total_triple_stat_label = ctk.CTkLabel(self.one_v_one_left_end_stat_frame, text=f"Triples: {self.one_v_one_player1_triple}", font=("Arial", 20))
                 player1_total_triple_stat_label.pack(padx=10, anchor='w')
 
-                player1_total_percentage_stat_label = ctk.CTkLabel(left_stat_frame, text=f"Percentage: {self.calculate_percentage(self.one_v_one_player1_total_hits, self.one_v_one_player1_total_throws + self.one_v_one_player1_throw_before_overtime)}%", font=("Arial", 20))
+                player1_total_percentage_stat_label = ctk.CTkLabel(self.one_v_one_left_end_stat_frame, text=f"Percentage: {self.calculate_percentage(self.one_v_one_player1_total_hits, self.one_v_one_player1_total_throws + self.one_v_one_player1_throw_before_overtime)}%", font=("Arial", 20))
                 player1_total_percentage_stat_label.pack(padx=10, anchor='w')
 
                 # Player2 endgame statisztika
-                right_stat_frame = ctk.CTkFrame(self.one_v_one_end_stat_frames_container, width=240)
-                right_stat_frame.pack(side="left", padx=10, fill="both", expand=True)
+                self.one_v_one_right_end_stat_frame = ctk.CTkFrame(self.one_v_one_end_stat_frames_container, width=240)
+                self.one_v_one_right_end_stat_frame.pack(side="left", padx=10, fill="both", expand=True)
 
-                player2_total_name_stat_label = ctk.CTkLabel(right_stat_frame, text=f"{self.one_v_one_player2}", font=("Arial", 24))
+                player2_total_name_stat_label = ctk.CTkLabel(self.one_v_one_right_end_stat_frame, text=f"{self.one_v_one_player2}", font=("Arial", 24))
                 player2_total_name_stat_label.pack(padx=10, pady=(4,10))
 
-                player2_total_throws_stat_label = ctk.CTkLabel(right_stat_frame, text=f"Total throws: {self.one_v_one_player2_total_throws + self.one_v_one_player2_throw_before_overtime}", font=("Arial", 20))
+                player2_total_throws_stat_label = ctk.CTkLabel(self.one_v_one_right_end_stat_frame, text=f"Total throws: {self.one_v_one_player2_total_throws + self.one_v_one_player2_throw_before_overtime}", font=("Arial", 20))
                 player2_total_throws_stat_label.pack(padx=10, anchor='w')
 
-                player2_total_hits_stat_label = ctk.CTkLabel(right_stat_frame, text=f"Total hits: {self.one_v_one_player2_total_hits}", font=("Arial", 20))
+                player2_total_hits_stat_label = ctk.CTkLabel(self.one_v_one_right_end_stat_frame, text=f"Total hits: {self.one_v_one_player2_total_hits}", font=("Arial", 20))
                 player2_total_hits_stat_label.pack(padx=10, anchor='w')
 
-                player2_total_miss_stat_label = ctk.CTkLabel(right_stat_frame, text=f"Total miss: {self.one_v_one_player2_total_miss}", font=("Arial", 20))
+                player2_total_miss_stat_label = ctk.CTkLabel(self.one_v_one_right_end_stat_frame, text=f"Total miss: {self.one_v_one_player2_total_miss}", font=("Arial", 20))
                 player2_total_miss_stat_label.pack(padx=10, anchor='w')
 
-                player2_total_double_stat_label = ctk.CTkLabel(right_stat_frame, text=f"Doubles: {self.one_v_one_player2_doubles + self.one_v_one_player2_double_before_overtime}", font=("Arial", 20))
+                player2_total_double_stat_label = ctk.CTkLabel(self.one_v_one_right_end_stat_frame, text=f"Doubles: {self.one_v_one_player2_doubles + self.one_v_one_player2_double_before_overtime}", font=("Arial", 20))
                 player2_total_double_stat_label.pack(padx=10, anchor='w')
 
-                player2_total_triple_stat_label = ctk.CTkLabel(right_stat_frame, text=f"Triples: {self.one_v_one_player2_triple}", font=("Arial", 20))
+                player2_total_triple_stat_label = ctk.CTkLabel(self.one_v_one_right_end_stat_frame, text=f"Triples: {self.one_v_one_player2_triple}", font=("Arial", 20))
                 player2_total_triple_stat_label.pack(padx=10, anchor='w')
 
-                player2_total_percentage_stat_label = ctk.CTkLabel(right_stat_frame, text=f"Percentage: {self.calculate_percentage(self.one_v_one_player2_total_hits, self.one_v_one_player2_total_throws + self.one_v_one_player2_throw_before_overtime)}%", font=("Arial", 20))
+                player2_total_percentage_stat_label = ctk.CTkLabel(self.one_v_one_right_end_stat_frame, text=f"Percentage: {self.calculate_percentage(self.one_v_one_player2_total_hits, self.one_v_one_player2_total_throws + self.one_v_one_player2_throw_before_overtime)}%", font=("Arial", 20))
                 player2_total_percentage_stat_label.pack(padx=10, anchor='w')
 
 
@@ -1198,6 +1198,8 @@ class TrackerWindow(ctk.CTk):
         self.one_v_one_end_button_frame.pack_forget()
         self.one_v_one_end_stat_frames_container.pack_forget()
         self.one_v_one_stat_end_label.pack_forget()
+        self.one_v_one_right_end_stat_frame.pack_forget()
+        self.one_v_one_left_end_stat_frame.pack_forget()
 
         # Ujra meghivtjuk a tracker window methodot
         self.one_v_one_tracker_window(self.one_v_one_player2, self.one_v_one_player1)
@@ -1211,6 +1213,8 @@ class TrackerWindow(ctk.CTk):
         self.one_v_one_end_button_frame.pack_forget()
         self.one_v_one_end_stat_frames_container.pack_forget()
         self.one_v_one_stat_end_label.pack_forget()
+        self.one_v_one_right_end_stat_frame.pack_forget()
+        self.one_v_one_left_end_stat_frame.pack_forget()
 
         # Valtozok beallitasa
         # A jatek logikajahoz szukseges valtozokat athelyezzuk csak tarolasra hasznalt valtozoba (Fontos hogy majd keresztbe adjuk az adatokat, mert masik jatekos lesz a kezdojatekos)
