@@ -1271,7 +1271,7 @@ class TrackerWindow(ctk.CTk):
         self.solo_double_after_game = double
         self.solo_triple = 0
         self.solo_triple_after_game = triple
-        self.solo_round = 0
+        self.solo_round = 1
         self.solo_first_throw = False
         self.solo_second_throw = False
         self.solo_third_throw = False
@@ -1426,11 +1426,20 @@ class TrackerWindow(ctk.CTk):
         self.solo_cups_left -= 1
         self.solo_throw_without_miss += 1
 
+        # Elso dobas
         if self.solo_first_throw == False:
             self.solo_first_throw = True
+
+        # Masodik dobas
         elif self.solo_second_throw == False:
             self.solo_second_throw = True
-        elif self.solo_throw_without_miss == 3 and self.solo_third_throw == False:
+            if self.solo_throw_without_miss != 2:
+                self.solo_first_throw = False
+                self.solo_second_throw = False
+                self.solo_throw_without_miss = 0
+
+        # Harmadik dobas (Ha lehetseges)
+        elif self.solo_throw_without_miss == 3:
             self.solo_double += 1
             self.solo_triple += 1
             self.solo_round += 1
@@ -1447,21 +1456,26 @@ class TrackerWindow(ctk.CTk):
         self.solo_miss += 1
         self.solo_throw_without_miss = 0
 
+        # Elso dobas
         if self.solo_first_throw == False:
             self.solo_first_throw = True
-            self.solo_update_labels()
-            return
+        
+        # Masodik dobas
         elif self.solo_second_throw == False:
             self.solo_second_throw = True
             self.solo_round += 1
-        elif self.solo_third_throw == False:
+            self.solo_first_throw = False
+            self.solo_second_throw = False
+
+        # Harmadik dobas 
+        else:
             self.solo_third_throw = True
             self.solo_double += 1
             self.solo_round += 1
+            self.solo_first_throw = False
+            self.solo_second_throw = False
 
-        self.solo_first_throw = False
-        self.solo_second_throw = False
-        self.solo_third_throw = False
+
         self.solo_update_labels()
 
 
