@@ -214,7 +214,7 @@ class TrackerWindow(ctk.CTk):
     # Ha a modot kivalasztottuk, akkor valasszuk ki a jatekosokat
     def select_players(self):
 
-        self.geometry('500x190')
+        self.geometry('500x250')
 
         # Jelenlegi widgeteket kitoroljuk
         self.mode_label.pack_forget()
@@ -251,6 +251,9 @@ class TrackerWindow(ctk.CTk):
 
         # 2v2
         if self.mode_var.get() == 0:
+
+            # Ablak meretenek atallitasa
+            self.geometry('500x190')
 
             # Team 1 label
             self.team1_label = ctk.CTkLabel(self, text="Team 1", font=("Arial", 18, "bold"))
@@ -341,19 +344,27 @@ class TrackerWindow(ctk.CTk):
                 return
 
         # Eddig hasznalt widgetek eltuntese
-        self.player1_label.pack_forget()
-        self.player1_combo.pack_forget()
-        self.game_start_one_v_one_end_button.pack_forget()
+        if game_mode != '2v2':
+            self.player1_label.pack_forget()
+            self.player1_combo.pack_forget()
+            self.game_start_one_v_one_end_button.pack_forget()
 
         if game_mode == '1v1':
             self.player2_label.pack_forget()
             self.player2_combo.pack_forget()
 
         if game_mode == '2v2':
-            self.player3_label.pack_forget()
-            self.player3_combo.pack_forget()
-            self.player4_label.pack_forget()
-            self.player4_combo.pack_forget()
+            self.player1_label.grid_forget()
+            self.player1_combo.grid_forget()
+            self.player2_label.grid_forget()
+            self.player2_combo.grid_forget()
+            self.player3_label.grid_forget()
+            self.player3_combo.grid_forget()
+            self.player4_label.grid_forget()
+            self.player4_combo.grid_forget()
+            self.game_start_one_v_one_end_button.grid_forget()
+            self.team1_label.grid_forget()
+            self.team2_label.grid_forget()
 
         # Tracker ablak megnyitasa valasztott jatekmodtol fuggoen
         match game_mode:
@@ -1611,7 +1622,153 @@ class TrackerWindow(ctk.CTk):
 
     # 2v2 Jatekablak
     def two_v_two_tracker_window(self):
-        print('2v2')
+
+        # Ablak beallitasa
+        self.geometry("900x500")
+
+        # Keret a címke számára a tetején
+        self.two_v_two_top_frame = ctk.CTkFrame(self)
+        self.two_v_two_top_frame.pack(pady=10, fill="x")
+
+        # Soron levo jatekos label
+        self.two_v_two_current_player_label = ctk.CTkLabel(self.two_v_two_top_frame, text="Soron levo jatekos:", font=("Arial", 24))
+        self.two_v_two_current_player_label.pack(side='left', padx=(200,0))
+
+        # Soron levo jatekos var label
+        self.two_v_two_current_name_label = ctk.CTkLabel(self.two_v_two_top_frame, text="PLAYER", font=("Arial", 24))
+        self.two_v_two_current_name_label.pack(side='left', padx=25)
+
+        # Player1 keret
+        self.two_v_two_player1_frame = ctk.CTkFrame(self, width=240, height=100)
+        self.two_v_two_player1_frame.pack(side="left", padx=10, pady=10, fill="both", expand=True)
+
+        # Player2 keret
+        self.two_v_two_player2_frame = ctk.CTkFrame(self, width=240, height=100)
+        self.two_v_two_player2_frame.pack(side="right", padx=10, pady=10, fill="both", expand=True)
+
+        # Player1 nev es fentlevo poharak
+        self.two_v_two_player1_name_label = ctk.CTkLabel(self.two_v_two_player1_frame, text="PLAYER NAME", font=("Arial", 26))
+        self.two_v_two_player1_name_label.pack(pady=(20, 5))
+        self.two_v_two_player1_score_label = ctk.CTkLabel(self.two_v_two_player1_frame, text="CUPS LEFT", font=("Arial", 24))
+        self.two_v_two_player1_score_label.pack(pady=5)
+
+        # Player1 gombok
+        self.two_v_two_player1_button_frame = ctk.CTkFrame(self.two_v_two_player1_frame)
+        self.two_v_two_player1_button_frame.pack(pady=10)
+        self.two_v_two_player1_hit_button = ctk.CTkButton(self.two_v_two_player1_button_frame, text="Hit", command=lambda: print("Player1 HIT"), fg_color="green", height=60, font=("Arial", 25))
+        self.two_v_two_player1_hit_button.pack(side='left', padx=10)
+        self.two_v_two_player1_miss_button = ctk.CTkButton(self.two_v_two_player1_button_frame, text="Miss", command=lambda: print("Player1 MISS"), fg_color="red", height=60, font=("Arial", 25))
+        self.two_v_two_player1_miss_button.pack(side='left', padx=10)
+
+        # Player1 Total throw statisztika 
+        self.two_v_two_player1_total_throws_stat_frame = ctk.CTkFrame(self.two_v_two_player1_frame)
+        self.two_v_two_player1_total_throws_stat_frame.pack(pady=(20,0), fill="x")
+        self.two_v_two_player1_total_throws_stat_label = ctk.CTkLabel(self.two_v_two_player1_total_throws_stat_frame, text="Total throws:", font=("Arial", 20))
+        self.two_v_two_player1_total_throws_stat_label.pack(side='left', padx=10)
+        self.two_v_two_player1_total_throws_var_label = ctk.CTkLabel(self.two_v_two_player1_total_throws_stat_frame, text="THROWS", font=("Arial", 20))
+        self.two_v_two_player1_total_throws_var_label.pack(side='left', padx=10)
+
+        # Player1 Total hits statisztika 
+        self.two_v_two_player1_total_hits_stat_frame = ctk.CTkFrame(self.two_v_two_player1_frame)
+        self.two_v_two_player1_total_hits_stat_frame.pack(pady=0, fill="x")
+        self.two_v_two_player1_total_hits_stat_label = ctk.CTkLabel(self.two_v_two_player1_total_hits_stat_frame, text="Total hits:", font=("Arial", 20))
+        self.two_v_two_player1_total_hits_stat_label.pack(side='left', padx=10)
+        self.two_v_two_player1_total_hits_var_label = ctk.CTkLabel(self.two_v_two_player1_total_hits_stat_frame, text="HITS", font=("Arial", 20))
+        self.two_v_two_player1_total_hits_var_label.pack(side='left', padx=10)
+
+        # Player1 Total miss statisztika 
+        self.two_v_two_player1_total_miss_stat_frame = ctk.CTkFrame(self.two_v_two_player1_frame)
+        self.two_v_two_player1_total_miss_stat_frame.pack(pady=0, fill="x")
+        self.two_v_two_player1_total_miss_stat_label = ctk.CTkLabel(self.two_v_two_player1_total_miss_stat_frame, text="Total misses:", font=("Arial", 20))
+        self.two_v_two_player1_total_miss_stat_label.pack(side='left', padx=10)
+        self.two_v_two_player1_total_miss_var_label = ctk.CTkLabel(self.two_v_two_player1_total_miss_stat_frame, text="MISS", font=("Arial", 20))
+        self.two_v_two_player1_total_miss_var_label.pack(side='left', padx=10)
+
+        # Player1 Dupla statisztika 
+        self.two_v_two_player1_doubles_stat_frame = ctk.CTkFrame(self.two_v_two_player1_frame)
+        self.two_v_two_player1_doubles_stat_frame.pack(pady=0, fill="x")
+        self.two_v_two_player1_doubles_stat_label = ctk.CTkLabel(self.two_v_two_player1_doubles_stat_frame, text="Doubles:", font=("Arial", 20))
+        self.two_v_two_player1_doubles_stat_label.pack(side='left', padx=10)
+        self.two_v_two_player1_doubles_var_label = ctk.CTkLabel(self.two_v_two_player1_doubles_stat_frame, text="DOUBLE", font=("Arial", 20))
+        self.two_v_two_player1_doubles_var_label.pack(side='left', padx=10)
+
+        # Player1 Tripla statisztika 
+        self.two_v_two_player1_triple_stat_frame = ctk.CTkFrame(self.two_v_two_player1_frame)
+        self.two_v_two_player1_triple_stat_frame.pack(pady=0, fill="x")
+        self.two_v_two_player1_triple_stat_label = ctk.CTkLabel(self.two_v_two_player1_triple_stat_frame, text="Triples:", font=("Arial", 20))
+        self.two_v_two_player1_triple_stat_label.pack(side='left', padx=10)
+        self.two_v_two_player1_triple_var_label = ctk.CTkLabel(self.two_v_two_player1_triple_stat_frame, text="TRIPLE", font=("Arial", 20))
+        self.two_v_two_player1_triple_var_label.pack(side='left', padx=10)
+
+        # Player1 Total percentage statisztika 
+        self.two_v_two_player1_total_percentage_stat_frame = ctk.CTkFrame(self.two_v_two_player1_frame)
+        self.two_v_two_player1_total_percentage_stat_frame.pack(pady=0, fill="x")
+        self.two_v_two_player1_total_percentage_stat_label = ctk.CTkLabel(self.two_v_two_player1_total_percentage_stat_frame, text="Total percentage:", font=("Arial", 20))
+        self.two_v_two_player1_total_percentage_stat_label.pack(side='left', padx=10)
+        self.two_v_two_player1_total_percentage_var_label = ctk.CTkLabel(self.two_v_two_player1_total_percentage_stat_frame, text="%", font=("Arial", 20))
+        self.two_v_two_player1_total_percentage_var_label.pack(side='left', padx=10)
+
+        # Player2 nev es fentlevo poharak
+        self.two_v_two_player2_name_label = ctk.CTkLabel(self.two_v_two_player2_frame, text="PLAYER2", font=("Arial", 26))
+        self.two_v_two_player2_name_label.pack(pady=(20, 5))
+        self.two_v_two_player2_score_label = ctk.CTkLabel(self.two_v_two_player2_frame, text="CUPS LEFT", font=("Arial", 24))
+        self.two_v_two_player2_score_label.pack(pady=5)
+
+        # Player2 gombok
+        self.two_v_two_player2_one_v_one_end_button_frame = ctk.CTkFrame(self.two_v_two_player2_frame)
+        self.two_v_two_player2_one_v_one_end_button_frame.pack(pady=10)
+        self.two_v_two_player2_hit_one_v_one_end_button = ctk.CTkButton(self.two_v_two_player2_one_v_one_end_button_frame, text="Hit", command=lambda: print("HIT"), fg_color="green", height=60, font=("Arial", 25))
+        self.two_v_two_player2_hit_one_v_one_end_button.pack(side='left', pady=2, padx=10)
+        self.two_v_two_player2_miss_one_v_one_end_button = ctk.CTkButton(self.two_v_two_player2_one_v_one_end_button_frame, text="Miss", command=lambda: print("MISS"), fg_color="red", height=60, font=("Arial", 25))
+        self.two_v_two_player2_miss_one_v_one_end_button.pack(side='left', pady=2, padx=10)
+        
+        # Player2 Total throw statisztika 
+        self.two_v_two_player2_total_throws_stat_frame = ctk.CTkFrame(self.two_v_two_player2_frame)
+        self.two_v_two_player2_total_throws_stat_frame.pack(pady=(20,0), fill="x")
+        self.two_v_two_player2_total_throws_stat_label = ctk.CTkLabel(self.two_v_two_player2_total_throws_stat_frame, text="Total throws:", font=("Arial", 20))
+        self.two_v_two_player2_total_throws_stat_label.pack(side='left', padx=10)
+        self.two_v_two_player2_total_throws_var_label = ctk.CTkLabel(self.two_v_two_player2_total_throws_stat_frame, text="THROW", font=("Arial", 20))
+        self.two_v_two_player2_total_throws_var_label.pack(side='left', padx=10)
+
+        # Player2 Total hits statisztika 
+        self.two_v_two_player2_total_hits_stat_frame = ctk.CTkFrame(self.two_v_two_player2_frame)
+        self.two_v_two_player2_total_hits_stat_frame.pack(pady=0, fill="x")
+        self.two_v_two_player2_total_hits_stat_label = ctk.CTkLabel(self.two_v_two_player2_total_hits_stat_frame, text="Total hits:", font=("Arial", 20))
+        self.two_v_two_player2_total_hits_stat_label.pack(side='left', padx=10)
+        self.two_v_two_player2_total_hits_var_label = ctk.CTkLabel(self.two_v_two_player2_total_hits_stat_frame, text="HITS", font=("Arial", 20))
+        self.two_v_two_player2_total_hits_var_label.pack(side='left', padx=10)
+
+        # Player2 Total miss stat
+        self.two_v_two_player2_total_miss_stat_frame = ctk.CTkFrame(self.two_v_two_player2_frame)
+        self.two_v_two_player2_total_miss_stat_frame.pack(pady=0, fill="x")
+        self.two_v_two_player2_total_miss_stat_label = ctk.CTkLabel(self.two_v_two_player2_total_miss_stat_frame, text="Total misses:", font=("Arial", 20))
+        self.two_v_two_player2_total_miss_stat_label.pack(side='left', padx=10)
+        self.two_v_two_player2_total_miss_var_label = ctk.CTkLabel(self.two_v_two_player2_total_miss_stat_frame, text="MISS", font=("Arial", 20))
+        self.two_v_two_player2_total_miss_var_label.pack(side='left', padx=10)
+
+        # Player2 Dupla statisztika 
+        self.two_v_two_player2_doubles_stat_frame = ctk.CTkFrame(self.two_v_two_player2_frame)
+        self.two_v_two_player2_doubles_stat_frame.pack(pady=0, fill="x")
+        self.two_v_two_player2_doubles_stat_label = ctk.CTkLabel(self.two_v_two_player2_doubles_stat_frame, text="Doubles:", font=("Arial", 20))
+        self.two_v_two_player2_doubles_stat_label.pack(side='left', padx=10)
+        self.two_v_two_player2_doubles_var_label = ctk.CTkLabel(self.two_v_two_player2_doubles_stat_frame, text="DOUBLE", font=("Arial", 20))
+        self.two_v_two_player2_doubles_var_label.pack(side='left', padx=10)
+
+        # Player2 Tripla statisztika 
+        self.two_v_two_player2_triple_stat_frame = ctk.CTkFrame(self.two_v_two_player2_frame)
+        self.two_v_two_player2_triple_stat_frame.pack(pady=0, fill="x")
+        self.two_v_two_player2_triple_stat_label = ctk.CTkLabel(self.two_v_two_player2_triple_stat_frame, text="Triples:", font=("Arial", 20))
+        self.two_v_two_player2_triple_stat_label.pack(side='left', padx=10)
+        self.two_v_two_player2_triple_var_label = ctk.CTkLabel(self.two_v_two_player2_triple_stat_frame, text="TRIPLE", font=("Arial", 20))
+        self.two_v_two_player2_triple_var_label.pack(side='left', padx=10)
+
+        # Player2 Total percentage statisztika 
+        self.two_v_two_player2_total_percentage_stat_frame = ctk.CTkFrame(self.two_v_two_player2_frame)
+        self.two_v_two_player2_total_percentage_stat_frame.pack(pady=0, fill="x")
+        self.two_v_two_player2_total_percentage_stat_label = ctk.CTkLabel(self.two_v_two_player2_total_percentage_stat_frame, text="Total percentage:", font=("Arial", 20))
+        self.two_v_two_player2_total_percentage_stat_label.pack(side='left', padx=10)
+        self.two_v_two_player2_total_percentage_var_label = ctk.CTkLabel(self.two_v_two_player2_total_percentage_stat_frame, text="%", font=("Arial", 20))
+        self.two_v_two_player2_total_percentage_var_label.pack(side='left', padx=10)
 
 
 
