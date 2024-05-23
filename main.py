@@ -214,7 +214,7 @@ class TrackerWindow(ctk.CTk):
     # Ha a modot kivalasztottuk, akkor valasszuk ki a jatekosokat
     def select_players(self):
 
-        self.geometry('500x250')
+        self.geometry('500x190')
 
         # Jelenlegi widgeteket kitoroljuk
         self.mode_label.pack_forget()
@@ -250,29 +250,41 @@ class TrackerWindow(ctk.CTk):
 
 
         # 2v2
-        elif self.mode_var.get() == 0:
+        if self.mode_var.get() == 0:
+
+            # Team 1 label
+            self.team1_label = ctk.CTkLabel(self, text="Team 1", font=("Arial", 18, "bold"))
+            self.team1_label.grid(row=0, column=0, columnspan=2, padx=10, pady=10)
+
+            # Bal oldal
             self.player1_label = ctk.CTkLabel(self, text="Player 1:")
-            self.player1_label.pack(pady=5)
+            self.player1_label.grid(row=1, column=0, padx=10, pady=5, sticky='e')
             self.player1_combo = ctk.CTkComboBox(self, variable=self.player1_var, state='readonly', values=self.players)
-            self.player1_combo.pack(pady=5)
+            self.player1_combo.grid(row=1, column=1, padx=10, pady=5, sticky='w')
 
             self.player2_label = ctk.CTkLabel(self, text="Player 2:")
-            self.player2_label.pack(pady=5)
+            self.player2_label.grid(row=2, column=0, padx=10, pady=5, sticky='e')
             self.player2_combo = ctk.CTkComboBox(self, variable=self.player2_var, state='readonly', values=self.players)
-            self.player2_combo.pack(pady=5)
+            self.player2_combo.grid(row=2, column=1, padx=10, pady=5, sticky='w')
 
+            # Team 2 label
+            self.team2_label = ctk.CTkLabel(self, text="Team 2", font=("Arial", 18, "bold"))
+            self.team2_label.grid(row=0, column=2, columnspan=2, padx=10, pady=10)
+
+            # Jobb oldal
             self.player3_label = ctk.CTkLabel(self, text="Player 3:")
-            self.player3_label.pack(pady=5)
+            self.player3_label.grid(row=1, column=2, padx=10, pady=5, sticky='e')
             self.player3_combo = ctk.CTkComboBox(self, variable=self.player3_var, state='readonly', values=self.players)
-            self.player3_combo.pack(pady=5)
+            self.player3_combo.grid(row=1, column=3, padx=10, pady=5, sticky='w')
 
             self.player4_label = ctk.CTkLabel(self, text="Player 4:")
-            self.player4_label.pack(pady=5)
+            self.player4_label.grid(row=2, column=2, padx=10, pady=5, sticky='e')
             self.player4_combo = ctk.CTkComboBox(self, variable=self.player4_var, state='readonly', values=self.players)
-            self.player4_combo.pack(pady=5)
+            self.player4_combo.grid(row=2, column=3, padx=10, pady=5, sticky='w')
 
+            # Start gomb
             self.game_start_one_v_one_end_button = ctk.CTkButton(self, text='Start', command=lambda: self.prepare_game_window('2v2'))
-            self.game_start_one_v_one_end_button.pack(pady=10)
+            self.game_start_one_v_one_end_button.grid(row=3, column=0, columnspan=4, pady=10)
 
 
         # Solo    
@@ -297,6 +309,7 @@ class TrackerWindow(ctk.CTk):
 
         # Ha 4 jatekos van, a masik ketto valtozonak is adunk erteket
         if game_mode =='2v2':
+            self.player2_var.set(self.player2_combo.get())
             self.player3_var.set(self.player3_combo.get())
             self.player4_var.set(self.player4_combo.get())
 
@@ -308,14 +321,16 @@ class TrackerWindow(ctk.CTk):
                 return
             if not self.player1_var.get() or not self.player2_var.get():
                 messagebox.showerror("Error", "You need to choose 2 players!")
-                print(self.player1_var.get(), self.player2_var.get())
                 return
 
         # 2v2 jatekmod eseteben ellenorzes, hogy van-e azonos nevu jatekos
         if game_mode == '2v2':
             # Letrehozunk egy halmazt, es azt vizsgaljuk, hogy van-e kozottuk azonos ertek
             if len({self.player1_var.get(), self.player2_var.get(), self.player3_var.get(), self.player4_var.get()}) < 4:
-                messagebox.showerror("Error", "The 2 players can't be the same!")
+                messagebox.showerror("Error", "Can't duplicate player!")
+                return
+            if not self.player1_var.get() or not self.player2_var.get() or not self.player3_var.get() or not self.player4_var.get():
+                messagebox.showerror("Error", "You need to choose 4 players!")
                 return
             
         if game_mode == 'solo':    
