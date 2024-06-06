@@ -6,6 +6,7 @@ from tkinter import ttk
 from database import Database
 import datetime
 import helpers
+import random
 
 
 
@@ -28,7 +29,7 @@ class MainWindow(ctk.CTk):
         tracker_one_v_one_end_button.pack(pady=10)
 
         # Training mod
-        trainer_one_v_one_end_button = ctk.CTkButton(self, text='Training')
+        trainer_one_v_one_end_button = ctk.CTkButton(self, text='Tournament', command=self.open_tournament_window)
         trainer_one_v_one_end_button.pack(pady=10)
 
         # Scores
@@ -52,6 +53,10 @@ class MainWindow(ctk.CTk):
     def open_score_window(self):
         score_window = ScoreWindow(self)
         score_window.mainloop()
+
+    def open_tournament_window(self):
+        tournament_window = TournamentWindow(self)
+        tournament_window.mainloop()
 
 
 
@@ -1952,8 +1957,163 @@ class ScoreWindow(ctk.CTk):
         best_match_data = best_match_data[0]
         print(f"Dobások száma:{best_match_data[3]}, Százalék: {best_match_data[8]}%")
 
+
+
+# Tournament Window
+class TournamentWindow(ctk.CTk):
+
+    # Inicializalas
+    def __init__(self, parent):
+        super().__init__()
+        self.title('Tournament')
+        self.geometry('500x210')
+        # Icon used from: https://www.flaticon.com
+        self.iconbitmap(helpers.decide_logo_by_system())
+
+        # Kapcsolat létrehozása az adatbázissal
+        self.database = Database()
+
+        # Szülőablak
+        self.parent = parent
+
+        # Cím label létrehozása
+        self.title_label = ctk.CTkLabel(self, text="Last man standing", font=("Arial", 22, "bold"))
+        self.title_label.pack(pady=10)
+
+        # Frame létrehozása a ComboBox és a gomb elrendezéséhez
+        self.input_frame = ctk.CTkFrame(self)
+        self.input_frame.pack(pady=10)
+
+        # ComboBox létrehozása a játékosok listájával
+        self.tournament_player_combobox = ctk.CTkComboBox(self.input_frame, width=200)
+        self.tournament_player_combobox.pack(side="left", padx=10)
+
+        # "Add" gomb létrehozása
+        self.player_add_button = ctk.CTkButton(self.input_frame, text="Add", command=self.add_player_to_match)
+        self.player_add_button.pack(side="left")
+
+        # Label a kiválasztott játékosok megjelenítéséhez
+        self.selected_players_label = ctk.CTkLabel(self, text="Selected Players: None")
+        self.selected_players_label.pack(pady=(10,10))
+
+        # "Start" gomb létrehozása
+        self.start_button = ctk.CTkButton(self, text="Start", command=self.start_game, height=35)
+        self.start_button.pack(pady=10)
+
+        self.selected_players = []
+        self.load_players()
+
+    # Jatekosok betoltese a comboxba
+    def load_players(self):
+        self.database.cursor.execute('SELECT name FROM players')
+        players = self.database.cursor.fetchall()
+        player_names = [player[0] for player in players]
+        self.tournament_player_combobox.configure(values=player_names)
+        if player_names:
+            self.tournament_player_combobox.set(player_names[0])
+
+    # Jatekos hozzaadasa a tournamenthez
+    def add_player_to_match(self):
+        selected_player = self.tournament_player_combobox.get()
+        if selected_player and selected_player not in self.selected_players and selected_player != "":
+            self.selected_players.append(selected_player)
+            self.update_selected_players_label()
+
+    # Eddig hozzaadott jatekosok label frissitese
+    def update_selected_players_label(self):
+        self.selected_players_label.configure(text=f"Selected Players: {', '.join(self.selected_players)}")
+
+    # Jatek elinditasa
+    def start_game(self):
+        if len(self.selected_players) >= 2:
+
+            # Jatek funkciojanak meghivasa
+            self.started_last_man_standing()
+        else:
+            messagebox.showerror("Error", "You need to choose at least 2 players")
+            return
         
             
+    # Elinditott jatek function
+    def started_last_man_standing(self):
+
+        # Player dict feltoltese
+        self.lms_player_dict = {player: 3 for player in self.selected_players}
+
+        # Valtozok
+        self.lms_player1 = None
+        self.lms_player2 = None
+
+        # Widgetek elfelejtese
+        self.title_label.pack_forget()
+        self.input_frame.pack_forget()
+        self.selected_players_label.pack_forget()
+        self.start_button.pack_forget()
+
+        # Ablak meretenek modositasa
+        self.geometry('500x400')
+
+        # Match lekrealasa
+        self.lms_match_creator(self.lms_player1, self.lms_player2)
+
+        # Játék állapot címke
+        self.lms_game_status_label = ctk.CTkLabel(self, text="Now playing:", font=("Arial", 28, "bold"))
+        self.lms_game_status_label.pack(pady=10)
+
+        # Jelenleg jatszo jatekosok label
+        self.lms_match_label = ctk.CTkLabel(self, text=f"{self.lms_player1} vs {self.lms_player2}", font=("Arial", 24))
+        self.lms_match_label.pack()
+
+        # Frame a gombok számára
+        self.lms_button_frame = ctk.CTkFrame(self)
+        self.lms_button_frame.pack(pady=15, fill="x")
+
+        # "Next Match" gomb
+        self.lms_player1_win_button = ctk.CTkButton(self.lms_button_frame, text=f"{self.lms_player1} won!", command=lambda: print("Player1 won"), height=40)
+        self.lms_player1_win_button.pack(side="left", padx=10, expand=True)
+
+        # "End Game" gomb
+        self.lms_player2_win_button = ctk.CTkButton(self.lms_button_frame, text=f"{self.lms_player2} won!", command=lambda: print("Player2 won"), height=40)
+        self.lms_player2_win_button.pack(side="left", padx=10, expand=True)
+
+        # Játékosok állapotának megjelenítése
+        self.lms_players_frame = ctk.CTkFrame(self)
+        self.lms_players_frame.pack(pady=10, fill="x")
+
+        self.update_players_status()
+
+
+    # Player labelek frissitese
+    def update_players_status(self):
+        # Töröljük az előző címkéket
+        for label in self.lms_players_frame.winfo_children():
+            label.destroy()
+
+        # Új címkék létrehozása a játékosok állapotának megjelenítéséhez
+        for player, lives in self.lms_player_dict.items():
+            label = ctk.CTkLabel(self.lms_players_frame, text=f"{player}: {lives} lives", font=("Arial", 20))
+            label.pack(padx=10 ,anchor="w")
+
+    
+    # Ellenfel kereso logika
+    def lms_match_creator(self, player1, player2):
+
+        # Valtozokba rendezes eletek szerint
+        self.lms_players_with_3_lives = [player for player, lives in self.lms_player_dict.items() if lives == 3]
+        self.lms_players_with_2_lives = [player for player, lives in self.lms_player_dict.items() if lives == 2]
+        self.lms_players_with_1_lives = [player for player, lives in self.lms_player_dict.items() if lives == 1]
+
+        # Ha tobb mint 1 jatekosnak van 3 elete, akkor abbol a csoportbol sorsolunk
+        if len(self.lms_players_with_3_lives) >= 2:
+            self.lms_player1, self.lms_player2 = random.sample(self.lms_players_with_3_lives, 2)
+
+
+
+
+        
+
+
+
         
 
     
