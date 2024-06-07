@@ -2044,6 +2044,9 @@ class TournamentWindow(ctk.CTk):
         self.lms_player1 = None
         self.lms_player2 = None
 
+        self.lms_game_ended = False   # Ha a jateknak vege true-ra valtoztatjuk       
+        self.lms_first_gui_generation = True # Ez a valtozo az elso generalas utan Falsre allitjuk, hogy ne dobjon no Object errort, mert elobb frissitenenk az elemet, mint legenaraljuk
+
         # Widgetek elfelejtese
         self.title_label.pack_forget()
         self.input_frame.pack_forget()
@@ -2054,7 +2057,7 @@ class TournamentWindow(ctk.CTk):
         self.geometry('500x400')
 
         # Match lekrealasa
-        self.lms_match_creator(self.lms_player1, self.lms_player2)
+        self.lms_match_creator()
 
         # Játék állapot címke
         self.lms_game_status_label = ctk.CTkLabel(self, text="Now playing:", font=("Arial", 28, "bold"))
@@ -2069,12 +2072,16 @@ class TournamentWindow(ctk.CTk):
         self.lms_button_frame.pack(pady=15, fill="x")
 
         # "Next Match" gomb
-        self.lms_player1_win_button = ctk.CTkButton(self.lms_button_frame, text=f"{self.lms_player1} won!", command=lambda: print("Player1 won"), height=40)
+        self.lms_player1_win_button = ctk.CTkButton(self.lms_button_frame, text=f"{self.lms_player1} won!", command=lambda: self.lms_win_logic(self.lms_player1), height=40)
         self.lms_player1_win_button.pack(side="left", padx=10, expand=True)
 
         # "End Game" gomb
-        self.lms_player2_win_button = ctk.CTkButton(self.lms_button_frame, text=f"{self.lms_player2} won!", command=lambda: print("Player2 won"), height=40)
+        self.lms_player2_win_button = ctk.CTkButton(self.lms_button_frame, text=f"{self.lms_player2} won!", command=lambda: self.lms_win_logic(self.lms_player2), height=40)
         self.lms_player2_win_button.pack(side="left", padx=10, expand=True)
+
+        # Player statistics
+        self.lms_stat_label = ctk.CTkLabel(self, text=f"Player statistics:", font=("Arial", 21))
+        self.lms_stat_label.pack(pady=10)
 
         # Játékosok állapotának megjelenítése
         self.lms_players_frame = ctk.CTkFrame(self)
@@ -2091,21 +2098,110 @@ class TournamentWindow(ctk.CTk):
 
         # Új címkék létrehozása a játékosok állapotának megjelenítéséhez
         for player, lives in self.lms_player_dict.items():
-            label = ctk.CTkLabel(self.lms_players_frame, text=f"{player}: {lives} lives", font=("Arial", 20))
+            label = ctk.CTkLabel(self.lms_players_frame, text=f"{player}: {lives} lives remaining", font=("Arial", 20))
             label.pack(padx=10 ,anchor="w")
 
     
     # Ellenfel kereso logika
-    def lms_match_creator(self, player1, player2):
+    def lms_match_creator(self):
 
         # Valtozokba rendezes eletek szerint
         self.lms_players_with_3_lives = [player for player, lives in self.lms_player_dict.items() if lives == 3]
         self.lms_players_with_2_lives = [player for player, lives in self.lms_player_dict.items() if lives == 2]
         self.lms_players_with_1_lives = [player for player, lives in self.lms_player_dict.items() if lives == 1]
 
+        # Elozo ket jatekost kivesszuk a listabol, hogy ok 1 kort pihenjenek
+        # Player1
+        if len(self.lms_players_with_3_lives + self.lms_players_with_2_lives + self.lms_players_with_1_lives) < 4:
+            pass # Ha kevesebb mint 4 jatekos van, nem vesszuk ki oket, mert nem lenne elegendo jatekos
+        elif self.lms_player1 in self.lms_players_with_3_lives:
+            self.lms_players_with_3_lives.remove(self.lms_player1)
+
+        elif self.lms_player1 in self.lms_players_with_2_lives:
+            self.lms_players_with_2_lives.remove(self.lms_player1)
+
+        elif self.lms_player1 in self.lms_players_with_1_lives:
+            self.lms_players_with_1_lives.remove(self.lms_player1)
+
+        # Player2
+        if len(self.lms_players_with_3_lives + self.lms_players_with_2_lives + self.lms_players_with_1_lives) < 4:
+            pass # Ha kevesebb mint 4 jatekos van, nem vesszuk ki oket, mert nem lenne elegendo jatekos
+        elif self.lms_player2 in self.lms_players_with_3_lives:
+            self.lms_players_with_3_lives.remove(self.lms_player2)
+
+        elif self.lms_player2 in self.lms_players_with_2_lives:
+            self.lms_players_with_2_lives.remove(self.lms_player2)
+
+        elif self.lms_player2 in self.lms_players_with_1_lives:
+            self.lms_players_with_1_lives.remove(self.lms_player2)
+
+
         # Ha tobb mint 1 jatekosnak van 3 elete, akkor abbol a csoportbol sorsolunk
         if len(self.lms_players_with_3_lives) >= 2:
             self.lms_player1, self.lms_player2 = random.sample(self.lms_players_with_3_lives, 2)
+
+        # Ha mar csak 1 ember rendelkezik 3 elettel, es van minimum 1, aki kettovel
+        elif len(self.lms_players_with_3_lives) == 1 and len(self.lms_players_with_2_lives) > 0:
+            self.lms_player1 = self.lms_players_with_3_lives[0]   # Mivel itt mar csak 1 jatekos van ezert ez fix
+            self.lms_player2 = random.choice(self.lms_players_with_2_lives)
+
+        # Ha mar csak 1 ember rendelkezik 3 elettel, es van minimum 1, aki eggyel
+        elif len(self.lms_players_with_3_lives) == 1 and len(self.lms_players_with_1_lives) > 0:
+            self.lms_player1 = self.lms_players_with_3_lives[0]    # Mivel itt mar csak 1 jatekos van ezert ez fix
+            self.lms_player2 = random.choice(self.lms_players_with_1_lives)
+
+        # Ha mar nem rendelkezik senki 3 elettel, de kettovel meg tobben
+        elif len(self.lms_players_with_2_lives) >= 2:
+            self.lms_player1, self.lms_player2 = random.sample(self.lms_players_with_2_lives, 2)
+
+        # Ha mar ketto elettel csak 1 ember rendelkezik, de meg van minimum 1 aki eggyel
+        elif len(self.lms_players_with_2_lives) == 1 and len(self.lms_players_with_1_lives) > 0:
+            self.lms_player1 = self.lms_players_with_2_lives[0]    # Mivel itt mar csak 1 jatekos van ezert ez fix
+            self.lms_player2 = random.choice(self.lms_players_with_1_lives)
+
+        # Ha meg 1 elettel tobb jatekos rendelkezik
+        elif len(self.lms_players_with_1_lives) >= 2:
+            self.lms_player1, self.lms_player2 = random.sample(self.lms_players_with_1_lives, 2)
+
+        else:
+            # Ha eddig egyik sem volt jo, akkor mar csak 1 jatekos maradt
+            # Egyesitjuk a listakat
+            self.lms_game_ended = True
+            self.lms_combined_list = self.lms_players_with_3_lives + self.lms_players_with_2_lives + self.lms_players_with_1_lives
+            self.lms_winner = self.lms_combined_list[0] # Mivel mar csak 1 jatekos maradt, ezert a legelso indexen levo jatekos a gyoztes
+
+            self.lms_game_status_label.pack_forget()
+            self.lms_match_label.pack_forget()
+            self.lms_button_frame.pack_forget()
+            self.lms_players_frame.pack_forget()
+
+            self.lms_winner_label = ctk.CTkLabel(self, text=f"{self.lms_winner} has won the tournament!", font=("Arial", 28, "bold"))
+            self.lms_winner_label.place(relx=0.5, rely=0.5, anchor="center")
+
+
+        # Ha a jateknak nincs meg vege es nem az elso generalasa a guinak, akkor frissitjuk a labeleket
+        if not self.lms_game_ended and not self.lms_first_gui_generation:
+            self.update_players_status() # Ezzel frissitjuk az also jatekos listat
+            self.lms_match_label.configure(text=f"{self.lms_player1} vs {self.lms_player2}") # Ki jatszik eppen label frissitese
+            self.lms_player1_win_button.configure(text=f"{self.lms_player1} won!") # Win button frissitese
+            self.lms_player2_win_button.configure(text=f"{self.lms_player2} won!") # Win button frissitese
+
+        # Legvegen az elso generalas erteke ha True volt atallitjuk false-ra
+        if self.lms_first_gui_generation:
+            self.lms_first_gui_generation = False
+
+
+    # Ha valamelyik jatekos nyer itt vonjuk le az eletet a vesztestol
+    def lms_win_logic(self, winner):
+        match winner:
+            case self.lms_player1:
+                self.lms_player_dict[self.lms_player2] -= 1
+            case self.lms_player2:
+                self.lms_player_dict[self.lms_player1] -= 1
+
+        self.lms_match_creator()
+        
+
 
 
 
